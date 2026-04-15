@@ -237,10 +237,10 @@
 </div>
 
 <div class="demo-section">
-  <h2 class="fontSize-22px fontWeight-600 color-#1a1a2e margin-0">25 · ECCard</h2>
+  <h2 class="fontSize-22px fontWeight-600 color-#1a1a2e margin-0">25 · ECMediaCard</h2>
   <p class="fontSize-15px color-#555 marginTop-8px">Flexible post-style card with header, optional image, body, and footer actions.</p>
   <div class="demo-row" style="align-items:flex-start;gap:20px;margin-top:16px;" id="card-demo"></div>
-  <pre><code><span class="kw">let</span> <span class="nm">card</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">ECCard</span>({
+  <pre><code><span class="kw">let</span> <span class="nm">card</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">ECMediaCard</span>({
   author:<span class="st">"Jane Doe"</span>, timestamp:<span class="st">"2 hours ago"</span>,
   imageSrc:<span class="st">"photo.jpg"</span>, imageHeight:<span class="st">"160px"</span>,
   content:<span class="st">"&lt;p&gt;Card body.&lt;/p&gt;"</span>,
@@ -592,17 +592,17 @@ rdemo.appendChild(rcol);
 
 /* Card */
 var cdemo=document.getElementById("card-demo");
-var c1=new ECCard({author:"Jane Doe",timestamp:"2 hours ago",
-  content:"<p style='margin:0'>Just shipped ECCard! Supports author headers, images, and footer actions. Give it a like!</p>",
+var c1=new ECMediaCard({author:"Jane Doe",timestamp:"2 hours ago",
+  content:"<p style='margin:0'>Just shipped ECMediaCard! Supports author headers, images, and footer actions. Give it a like!</p>",
   actions:[
     {icon:"👍",label:"Like",   onClick:function(){ new ECToast("Liked!",  {type:"success",duration:1200}).show(); }},
     {icon:"💬",label:"Comment",onClick:function(){ new ECToast("Comment!",{type:"info",duration:1200}).show(); }},
     {icon:"↗️",label:"Share", onClick:function(){ new ECToast("Shared!", {type:"info",duration:1200}).show(); }},
   ]});
 c1.setWidth(300); cdemo.appendChild(c1.element);
-var c2=new ECCard({author:"Dev Team",timestamp:"Yesterday",
-  imageSrc:"https://picsum.photos/seed/eccard2/600/200",imageHeight:"160px",
-  content:"<p style='margin:0;font-size:14px;'>ECCard also supports an image above the body content — great for articles or product cards.</p>",
+var c2=new ECMediaCard({author:"Dev Team",timestamp:"Yesterday",
+  imageSrc:"https://picsum.photos/seed/ecmediacard2/600/200",imageHeight:"160px",
+  content:"<p style='margin:0;font-size:14px;'>ECMediaCard also supports an image above the body content — great for articles or product cards.</p>",
   actions:[{icon:"❤️",label:"Favorite",onClick:function(){ new ECToast("Favorited!",{type:"success",duration:1200}).show(); }}]});
 c2.setWidth(300); cdemo.appendChild(c2.element);
 
@@ -683,7 +683,7 @@ document.getElementById("countdown-demo").appendChild(timer.element);
 /* Grid */
 var grid = new ECGrid({ columns: 3, gap: "16px" });
 for (var i = 1; i <= 3; i++) {
-  var gCard = new ECCard({
+  var gCard = new ECMediaCard({
     author: "User " + i,
     content: "<p style='margin:0'>Grid item " + i + "</p>"
   });

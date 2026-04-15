@@ -14,7 +14,7 @@
  * ECStepper      – multi-step process indicator
  * ECTreeView     – nested collapsible list for hierarchical data
  * ECCarousel     – touch-responsive horizontal content slider
- * ECCard         – content container with image/avatar/actions
+ * ECMediaCard    – content container with image/avatar/actions
  * ECHero         – large call-to-action header section
  *
  * -- Data & Feedback --
@@ -1736,9 +1736,43 @@
   };
   ECRating.prototype.onChange = function (h) { this._changeHandler = h; return this; };
 
-  /* ─── ECCard ─────────────────────────────────────────────────────────── */
+  /* ─── ECBasicCard ────────────────────────────────────────────────────── */
 
-  function ECCard(options) {
+  function ECBasicCard(content) {
+    this.element = document.createElement("div");
+    
+    // Leverage the new macro class from ECStyleSheet, plus generic padding
+    this.element.className = BASE_CLS + " eccard padding-20px boxSizing-border-box";
+
+    if (content) {
+      this.append(content);
+    }
+
+    applyBaseMixin(this);
+  }
+
+  ECBasicCard.prototype.append = function (child) {
+    if (typeof child === "string") {
+      var span = document.createElement("span");
+      span.innerHTML = child;
+      this.element.appendChild(span);
+    } else if (child && child.element) {
+      this.element.appendChild(child.element);
+    } else if (child instanceof HTMLElement) {
+      this.element.appendChild(child);
+    }
+    return this;
+  };
+
+  ECBasicCard.prototype.setContent = function (content) {
+    this.element.innerHTML = "";
+    this.append(content);
+    return this;
+  };
+
+  /* ─── ECMediaCard ─────────────────────────────────────────────────────────── */
+
+  function ECMediaCard(options) {
     options = options || {};
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " background-var(--ec-bg,_#fff) border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-12px overflow-hidden display-flex flexDirection-column";
@@ -1782,7 +1816,7 @@
       var imgWrap = document.createElement("div");
       imgWrap.className = "overflow-hidden";
       var cardImg = document.createElement("img");
-      cardImg.className = "width-100% objectFit-cover display-block";
+      cardImg.className = "width-100% objectFit-cover marginTop-14px display-block";
       cardImg.src = options.imageSrc; cardImg.alt = options.imageAlt || "";
       if (options.imageHeight) cardImg.style.height = options.imageHeight;
       imgWrap.appendChild(cardImg);
@@ -1808,17 +1842,17 @@
     applyBaseMixin(this);
   }
 
-  ECCard.prototype.setContent = function (content) {
+  ECMediaCard.prototype.setContent = function (content) {
     if (typeof content === "string") this._body.innerHTML = content;
     else { this._body.innerHTML = ""; this._body.appendChild(content); }
     return this;
   };
-  ECCard.prototype.addContent = function (content) {
+  ECMediaCard.prototype.addContent = function (content) {
     if (typeof content === "string") { var s = document.createElement("span"); s.innerHTML = content; this._body.appendChild(s); }
     else this._body.appendChild(content);
     return this;
   };
-  ECCard.prototype.addAction = function (label, handler, icon) {
+  ECMediaCard.prototype.addAction = function (label, handler, icon) {
     var btn = document.createElement("button");
     btn.className = "background-none border-none fontSize-13px color-var(--ec-text-muted,_#6c757d) cursor-pointer padding-4px_8px borderRadius-6px display-flex alignItems-center gap-4px transition-background_0.15s,_color_0.15s hover:background-var(--ec-surface,_#f8f9fa) hover:color-var(--ec-text,_#212529)";
     btn.textContent = (icon ? icon + " " : "") + label;
@@ -1826,14 +1860,14 @@
     this._footer.appendChild(btn);
     return this;
   };
-  ECCard.prototype.setWidth = function (w) { this.element.style.width = typeof w === "number" ? w + "px" : w; return this; };
+  ECMediaCard.prototype.setWidth = function (w) { this.element.style.width = typeof w === "number" ? w + "px" : w; return this; };
 
   /* ─── ECHero ─────────────────────────────────────────────────────────── */
 
   function ECHero(options) {
     options = options || {};
     this.element = document.createElement("div");
-    this.element.className = BASE_CLS + " width-100% padding-72px_32px textAlign-center boxSizing-border-box background-var(--ec-bg,_#fff) borderRadius-16px display-flex flexDirection-column justifyContent-center alignItems-center gap-16px position-relative overflow-hidden";
+    this.element.className = BASE_CLS + " width-100% height-100vh padding-72px_32px textAlign-center boxSizing-border-box background-var(--ec-bg,_#fff) display-flex flexDirection-column justifyContent-center alignItems-center gap-16px position-relative overflow-hidden";
 
     if (options.background) this.element.style.background = options.background;
 
@@ -2338,7 +2372,7 @@
   window.ECDatePicker = ECDatePicker;
   window.ECFileUpload = ECFileUpload;
   window.ECRating = ECRating;
-  window.ECCard = ECCard;
+  window.ECMediaCard = ECMediaCard;
   window.ECHero = ECHero;
   window.ECTreeView = ECTreeView;
   window.ECIndicator = ECIndicator;

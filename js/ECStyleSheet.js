@@ -190,19 +190,6 @@
 
   /* ─── Class name parser ──────────────────────────────────────────────── */
 
-  /**
-   * Parses a single class name token into a rule descriptor.
-   * Returns null if the class name is not an EC pattern.
-   *
-   * Descriptor shape:
-   * {
-   *   className: string,   // original class name
-   *   isMobile: boolean,
-   *   pseudoClass: string|null,  // e.g. "hover", "focus", "active"
-   *   cssProperty: string,       // e.g. "padding-top"
-   *   cssValue: string,          // e.g. "8px"
-   * }
-   */
   function parseClassName(token) {
     var parts = token.split(":");
     var isMobile = false;
@@ -229,8 +216,30 @@
 
     if (!declaration) return null;
 
-    // Split on the FIRST hyphen that is preceded by a letter (not a digit)
-    // to separate property from value. Handles: paddingTop-8px, color-red, zIndex-10
+    // --- NEW: Custom Macros ---
+    
+    // 1. Basic Card Container
+    if (declaration === "eccard") {
+      return {
+        className: token,
+        isMobile: isMobile,
+        pseudoClass: pseudoClass,
+        cssText: "background: var(--ec-bg, #ffffff); border: 1px solid var(--ec-border, #dee2e6); border-radius: 12px; overflow: hidden;"
+      };
+    }
+
+    // 2. Grid NxN (e.g., ecgrid-3x2)
+    var gridMatch = declaration.match(/^ecgrid-(\d+)x(\d+)$/);
+    if (gridMatch) {
+      return {
+        className: token,
+        isMobile: isMobile,
+        pseudoClass: pseudoClass,
+        cssText: "display: grid; grid-template-columns: repeat(" + gridMatch[1] + ", 1fr); grid-template-rows: repeat(" + gridMatch[2] + ", 1fr);"
+      };
+    }
+
+    // --- Standard property-value parser ---
     var dashIndex = declaration.search(/(?<=[a-zA-Z])-/);
     if (dashIndex === -1) return null;
 
@@ -260,7 +269,10 @@
       selector = selector + ":" + descriptor.pseudoClass;
     }
 
-    var declaration = descriptor.cssProperty + ": " + descriptor.cssValue + ";";
+    // Use cssText if provided by a macro, otherwise use standard property + value
+    var declaration = descriptor.cssText 
+      ? descriptor.cssText 
+      : (descriptor.cssProperty + ": " + descriptor.cssValue + ";");
 
     if (descriptor.isMobile) {
       return (
