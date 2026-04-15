@@ -1736,6 +1736,40 @@
   };
   ECRating.prototype.onChange = function (h) { this._changeHandler = h; return this; };
 
+  /* ─── ECBasicCard ────────────────────────────────────────────────────── */
+
+  function ECBasicCard(content) {
+    this.element = document.createElement("div");
+    
+    // Leverage the new macro class from ECStyleSheet, plus generic padding
+    this.element.className = BASE_CLS + " eccard padding-20px boxSizing-border-box";
+
+    if (content) {
+      this.append(content);
+    }
+
+    applyBaseMixin(this);
+  }
+
+  ECBasicCard.prototype.append = function (child) {
+    if (typeof child === "string") {
+      var span = document.createElement("span");
+      span.innerHTML = child;
+      this.element.appendChild(span);
+    } else if (child && child.element) {
+      this.element.appendChild(child.element);
+    } else if (child instanceof HTMLElement) {
+      this.element.appendChild(child);
+    }
+    return this;
+  };
+
+  ECBasicCard.prototype.setContent = function (content) {
+    this.element.innerHTML = "";
+    this.append(content);
+    return this;
+  };
+
   /* ─── ECMediaCard ─────────────────────────────────────────────────────────── */
 
   function ECMediaCard(options) {
