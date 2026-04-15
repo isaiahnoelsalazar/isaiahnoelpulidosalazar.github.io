@@ -42,8 +42,14 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+        <style>
+            * {
+                font-family: 'Google Sans', sans-serif;
+            }
+        </style>
     </head>
-    <body class="margin-0 padding-0 display-flex minHeight-100vh">
+    <body class="margin-0 padding-0 display-flex flexDirection-column">
+        <div id="hero"></div>
     </body>
     <script>
         let hero = new ECHero({
@@ -52,10 +58,21 @@
             subtitle: "Welcome to my website!",
             background: "linear-gradient(135deg, #ffffff 0%, #BFBFFF 60%, #4949FF 100%)",
             actions: [
-                { label:"Explore" },
-                { label:"Contact", variant:"outline" },
+                {
+                    label:"Explore",
+                    onClick: () => {
+                        document.getElementById("projects").scrollIntoView({ behavior: "smooth" });
+                    }
+                },
+                {
+                    label:"Contact",
+                    variant:"outline",
+                    onClick: () => {
+                        document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
+                    }
+                },
             ],
         });
-        document.body.appendChild(hero.element);
+        document.getElementById("hero").appendChild(hero.element);
     </script>
 </html>
