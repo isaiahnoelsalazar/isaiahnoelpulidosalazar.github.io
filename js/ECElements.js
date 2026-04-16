@@ -2180,7 +2180,7 @@
     this.element.className = BASE_CLS + " display-none position-fixed inset-0 background-rgba(0,0,0,0.9) zIndex-3000 alignItems-center justifyContent-center opacity-0 transition-opacity_0.25s_ease";
 
     this._img = document.createElement("img");
-    this._img.className = "maxWidth-90vw maxHeight-90vh objectFit-contain transform-scale(0.9) transition-transform_0.25s_ease";
+    this._img.className = "maxWidth-100vw maxHeight-100vh objectFit-contain transform-scale(0.9) transition-transform_0.25s_ease";
     
     this._caption = document.createElement("div");
     this._caption.className = "position-absolute bottom-24px left-50% transform-translateX(-50%) color-#fff fontSize-14px fontWeight-500 textShadow-0_1px_4px_rgba(0,0,0,0.5)";
