@@ -15,3 +15,22 @@ for (let i = 0; i < 100; i++) {
   `;
   container.appendChild(p);
 }
+document.body.addEventListener("dblclick", () => {
+  if (!document.fullscreenElement) {
+    document.body.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+});
+document.body.addEventListener("touchend", () => {
+  const now = new Date().getTime();
+  const timeSince = now - (window.lastTouchEnd || 0);
+  if (timeSince < 300 && timeSince > 0) {
+     if (!document.fullscreenElement) {
+      document.body.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  window.lastTouchEnd = now;
+});
