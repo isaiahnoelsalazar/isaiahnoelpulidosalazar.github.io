@@ -681,8 +681,8 @@ var timer = new ECCountdown(targetDate);
 document.getElementById("countdown-demo").appendChild(timer.element);
 
 /* Grid */
-var grid = new ECGrid({ columns: 3, gap: "16px" });
-for (var i = 1; i <= 3; i++) {
+var grid = new ECGrid({ columns: 2, gap: "16px" });
+for (var i = 1; i <= 2; i++) {
   var gCard = new ECMediaCard({
     author: "User " + i,
     content: "<p style='margin:0'>Grid item " + i + "</p>"
