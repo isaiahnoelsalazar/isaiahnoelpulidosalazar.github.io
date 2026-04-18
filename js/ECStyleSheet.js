@@ -9,6 +9,8 @@
  * Core Syntax:
  *   [property]-[value]            → e.g., paddingTop-8px
  *   [pseudo]:[prop]-[val]         → e.g., hover:color-red
+ *   tablet:[prop]-[val]           → e.g., tablet:margin-16px  (Applies at ≤1024px)
+ *   tablet:[pseudo]:[prop]-[val]  → e.g., tablet:focus:border-1px_solid_blue
  *   mobile:[prop]-[val]           → e.g., mobile:fontSize-16px  (Applies at ≤768px)
  *   mobile:[pseudo]:[prop]-[val]  → e.g., mobile:hover:color-blue
  *
@@ -32,6 +34,7 @@
   /* ─── Constants ─────────────────────────────────────────────────────── */
 
   var MOBILE_BREAKPOINT = 768;
+  var TABLET_BREAKPOINT = 1024;
   var STYLE_TAG_ID = "ec-stylesheet-rules";
   var PROCESSED_ATTR = "data-ec-processed";
   var IS_FONT_SET = false;
@@ -204,6 +207,7 @@
   function parseClassName(token) {
     var parts = token.split(":");
     var isMobile = false;
+    var isTablet = false;
     var pseudoClass = null;
     var declaration = null;
 
@@ -213,6 +217,9 @@
       if (parts[0] === "mobile") {
         isMobile = true;
         declaration = parts[1];
+      } else if (parts[0] === "tablet") {
+        isTablet = true;
+        declaration = parts[1];
       } else {
         pseudoClass = parts[0];
         declaration = parts[1];
@@ -220,6 +227,10 @@
     } else if (parts.length === 3) {
       if (parts[0] === "mobile") {
         isMobile = true;
+        pseudoClass = parts[1];
+        declaration = parts[2];
+      } else if (parts[0] === "tablet") {
+        isTablet = true;
         pseudoClass = parts[1];
         declaration = parts[2];
       }
@@ -234,6 +245,7 @@
       return {
         className: token,
         isMobile: isMobile,
+        isTablet: isTablet,
         pseudoClass: pseudoClass,
         cssText: "background: var(--ec-bg, #ffffff); border: 1px solid var(--ec-border, #dee2e6); border-radius: 12px; overflow: hidden;"
       };
@@ -245,6 +257,7 @@
       return {
         className: token,
         isMobile: isMobile,
+        isTablet: isTablet,
         pseudoClass: pseudoClass,
         cssText: "display: grid; grid-template-columns: repeat(" + gridMatch[1] + ", 1fr); grid-template-rows: repeat(" + gridMatch[2] + ", 1fr);"
       };
@@ -256,6 +269,7 @@
       return {
         className: token,
         isMobile: isMobile,
+        isTablet: isTablet,
         pseudoClass: pseudoClass,
         cssBlock: [
           "transition: 0.2s;",
@@ -280,6 +294,7 @@
     return {
       className: token,
       isMobile: isMobile,
+      isTablet: isTablet,
       pseudoClass: pseudoClass,
       cssProperty: cssProperty,
       cssValue: cssValue,
@@ -309,6 +324,15 @@
           rules.push(selector + " { " + rule + " }");
         }
       });
+      if (descriptor.isTablet) {
+        return (
+          "@media (max-width: " +
+          TABLET_BREAKPOINT +
+          "px) { " +
+          rules.join(" ") +
+          " }"
+        );
+      }
       if (descriptor.isMobile) {
         return (
           "@media (max-width: " +
@@ -320,7 +344,17 @@
       }
       return rules.join(" ");
     }
-
+    if (descriptor.isTablet) {
+      return (
+        "@media (max-width: " +
+        TABLET_BREAKPOINT +
+        "px) { " +
+        selector +
+        " { " +
+        declaration +
+        " } }"
+      );
+    }
     if (descriptor.isMobile) {
       return (
         "@media (max-width: " +
