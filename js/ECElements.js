@@ -1825,9 +1825,8 @@
     }
 
     if (options.onClick) {
-      this.element.style.cursor = "pointer";
       this.element.addEventListener("click", options.onClick);
-      this.element.classList.add(`ecbounce-${options.bounceAmount || 2}`);
+      this.element.classList.add(`ecbounce-${options.bounceAmount || 2}`, "cursor-pointer");
     }
 
     this._body = document.createElement("div");
