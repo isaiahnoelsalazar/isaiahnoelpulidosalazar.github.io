@@ -5,8 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let gameActive = true;
   let playerColor = 'w'; // default
   
-  let playerElo = parseInt(localStorage.getItem('chess_elo')) || 1000;
-  const botElos = { '1': 300, '2': 1000, '3': 1375 };
+  let playerElo = parseInt(localStorage.getItem('chess_elo')) || 300;
+  const botElos = {
+    '1': 300,
+    '2': 1100,
+    '3': 1300
+  };
   // UI Setup using ECElements
   const playerCard = new window.ECMediaCard({
     author: "You (White)",
@@ -17,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const botCard = new window.ECMediaCard({
     author: "ChessBot (Black)",
-    content: `<b>Elo Rating:</b> 1000`,
+    content: `<b>Elo Rating:</b> 1100`,
     avatarSrc: "https://api.dicebear.com/7.x/bottts/svg?seed=ChessBot"
   });
   document.getElementById('bot-info-container').appendChild(botCard.element);
@@ -46,8 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
     label: "AI Difficulty Level",
     items: [
       { label: "L1 (300 Elo)", value: "1" },
-      { label: "L2 (1000 Elo)", value: "2" },
-      { label: "L3 (1375 Elo)", value: "3" }
+      { label: "L2 (1100 Elo)", value: "2" },
+      { label: "L3 (1300 Elo)", value: "3" }
     ]
   });
   botLevelDropdown.setValue("2"); // Default to intermediate
@@ -131,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function updateElo(score) {
     const level = botLevelDropdown.getValue();
-    const botElo = botElos[level] || 1000; // Fallback just in case
+    const botElo = botElos[level] || 300; // Fallback just in case
     
     // 1. Dynamic K-Factor
     // New players fluctuate faster, veterans stabilize
@@ -563,14 +567,11 @@ document.addEventListener("DOMContentLoaded", () => {
       let move;
       
       if (level === '1') { 
-        // Level 1: Beginner, Random Move
         move = mvs[Math.floor(Math.random() * mvs.length)];
       } else if (level === '2') { 
-        // Level 2: Intermediate, 2-Ply Minimax Read
-        move = getBestMove(game, 2);
+        move = getBestMove(game, 1);
       } else if (level === '3') { 
-        // Level 3: Advanced, 3-Ply Minimax Read
-        move = getBestMove(game, 3);
+        move = getBestMove(game, 2);
       }
       
       game.move(move);
