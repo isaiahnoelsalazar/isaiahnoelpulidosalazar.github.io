@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let playerColor = 'w'; // default
   
   let playerElo = parseInt(localStorage.getItem('chess_elo')) || 1000;
-  const botElos = { '1': 800, '2': 1200, '3': 1600 };
+  const botElos = { '1': 300, '2': 1000, '3': 1375 };
   // UI Setup using ECElements
   const playerCard = new window.ECMediaCard({
     author: "You (White)",
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const botCard = new window.ECMediaCard({
     author: "ChessBot (Black)",
-    content: `<b>Elo Rating:</b> 1200`,
+    content: `<b>Elo Rating:</b> 1000`,
     avatarSrc: "https://api.dicebear.com/7.x/bottts/svg?seed=ChessBot"
   });
   document.getElementById('bot-info-container').appendChild(botCard.element);
@@ -45,9 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const botLevelDropdown = new window.ECDropdown({
     label: "AI Difficulty Level",
     items: [
-      { label: "Beginner (800 Elo)", value: "1" },
-      { label: "Intermediate (1200 Elo)", value: "2" },
-      { label: "Advanced (1600 Elo)", value: "3" }
+      { label: "L1 (300 Elo)", value: "1" },
+      { label: "L2 (1000 Elo)", value: "2" },
+      { label: "L3 (1375 Elo)", value: "3" }
     ]
   });
   botLevelDropdown.setValue("2"); // Default to intermediate
@@ -131,15 +131,49 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function updateElo(score) {
     const level = botLevelDropdown.getValue();
-    const botElo = botElos[level];
-    const K = 32;
+    const botElo = botElos[level] || 1000; // Fallback just in case
     
+    // 1. Dynamic K-Factor
+    // New players fluctuate faster, veterans stabilize
+    let K = 32;
+    if (playerElo < 1200) K = 40;
+    else if (playerElo >= 2000) K = 16;
+    else if (playerElo >= 2400) K = 10;
+    
+    // 2. Standard Elo Math
     const expected = 1 / (1 + Math.pow(10, (botElo - playerElo) / 400));
-    playerElo = Math.round(playerElo + K * (score - expected));
-    localStorage.setItem('chess_elo', playerElo);
+    const eloChange = Math.round(K * (score - expected));
+    let newElo = playerElo + eloChange;
     
+    // 3. Set a rating floor (no one goes below 100 Elo)
+    if (newElo < 100) newElo = 100;
+    
+    // Recalculate actual change in case they hit the floor
+    const actualChange = newElo - playerElo;
+    playerElo = newElo; // Update global variable
+    
+    localStorage.setItem('chess_elo', playerElo);
     playerCard.setContent(`<b>Elo Rating:</b> ${playerElo}`);
-    const toast = new window.ECToast(`Elo Updated! Your new Elo is ${playerElo}`, { type: 'info', duration: 4000 });
+    
+    // 4. Polish the UI Notification
+    // Format the change string so it shows a plus sign for gains (e.g., "+15")
+    const changeStr = actualChange > 0 ? `+${actualChange}` : `${actualChange}`;
+    
+    // Determine text and toast color based on the score (1 = win, 0.5 = draw, 0 = loss)
+    let resultText = 'Draw';
+    let toastType = 'info';
+    
+    if (score === 1) {
+      resultText = 'Victory!';
+      toastType = 'success'; // Usually green
+    } else if (score === 0) {
+      resultText = 'Defeat...';
+      toastType = 'error';   // Usually red
+    }
+
+    // Example output: "Victory! New Elo: 1215 (+15)"
+    const toastMessage = `${resultText} New Elo: ${playerElo} (${changeStr})`;
+    const toast = new window.ECToast(toastMessage, { type: toastType, duration: 4000 });
     toast.show();
   }
   function checkGameOver() {
@@ -264,83 +298,259 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
-  // Bot Logic (Minimax with Alpha-Beta Pruning)
-  const pieceValues = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 };
-  function evaluateBoard(gameNode) {
-    if (gameNode.in_checkmate()) return gameNode.turn() === 'w' ? -9999 : 9999;
-    if (gameNode.in_draw() || gameNode.in_stalemate() || gameNode.in_threefold_repetition()) return 0;
+  // // Bot Logic (Minimax with Alpha-Beta Pruning)
+  // const pieceValues = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 };
+  // function evaluateBoard(gameNode) {
+  //   if (gameNode.in_checkmate()) return gameNode.turn() === 'w' ? -9999 : 9999;
+  //   if (gameNode.in_draw() || gameNode.in_stalemate() || gameNode.in_threefold_repetition()) return 0;
     
+  //   let score = 0;
+  //   const board = gameNode.board();
+  //   for (let r = 0; r < 8; r++) {
+  //     for (let c = 0; c < 8; c++) {
+  //       const piece = board[r][c];
+  //       if (piece) {
+  //         // Positional logic: Small advantage points for central control
+  //         const posBonus = (piece.type === 'p' || piece.type === 'n') ? 
+  //           (0.5 - Math.abs(3.5 - r)/8 - Math.abs(3.5 - c)/8) * 3 : 0;
+          
+  //         const val = pieceValues[piece.type] + posBonus;
+  //         score += piece.color === 'w' ? val : -val;
+  //       }
+  //     }
+  //   }
+  //   return score;
+  // }
+  // function minimax(gameNode, depth, alpha, beta, isMaximizing) {
+  //   if (depth === 0 || gameNode.game_over()) {
+  //     return evaluateBoard(gameNode);
+  //   }
+  //   const mvs = gameNode.moves();
+  //   if (isMaximizing) {
+  //     let maxEval = -Infinity;
+  //     for (let i = 0; i < mvs.length; i++) {
+  //       gameNode.move(mvs[i]);
+  //       let ev = minimax(gameNode, depth - 1, alpha, beta, false);
+  //       gameNode.undo();
+  //       maxEval = Math.max(maxEval, ev);
+  //       alpha = Math.max(alpha, ev);
+  //       if (beta <= alpha) break;
+  //     }
+  //     return maxEval;
+  //   } else {
+  //     let minEval = Infinity;
+  //     for (let i = 0; i < mvs.length; i++) {
+  //       gameNode.move(mvs[i]);
+  //       let ev = minimax(gameNode, depth - 1, alpha, beta, true);
+  //       gameNode.undo();
+  //       minEval = Math.min(minEval, ev);
+  //       beta = Math.min(beta, ev);
+  //       if (beta <= alpha) break;
+  //     }
+  //     return minEval;
+  //   }
+  // }
+  // function getBestMove(gameNode, depth) {
+  //   const mvs = gameNode.moves();
+  //   let bestMove = null;
+  //   let bestValue = gameNode.turn() === 'w' ? -Infinity : Infinity;
+  //   // Randomly shuffle moves slightly to prevent deterministic, repetitive mirror openings
+  //   mvs.sort(() => Math.random() - 0.5);
+  //   for (let i = 0; i < mvs.length; i++) {
+  //     gameNode.move(mvs[i]);
+  //     let boardValue = minimax(gameNode, depth - 1, -Infinity, Infinity, gameNode.turn() === 'w');
+  //     gameNode.undo();
+      
+  //     if (gameNode.turn() === 'w') {
+  //       if (boardValue > bestValue) {
+  //         bestValue = boardValue;
+  //         bestMove = mvs[i];
+  //       }
+  //     } else {
+  //       if (boardValue < bestValue) {
+  //         bestValue = boardValue;
+  //         bestMove = mvs[i];
+  //       }
+  //     }
+  //   }
+  //   return bestMove || mvs[0];
+  // }
+
+  // --- 1. Enhanced Evaluation Constants ---
+  // Standard Centipawn values
+  const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+
+  // Piece-Square Tables (PST) to encourage better piece placement. 
+  // These values are oriented for White. The code flips them for Black automatically.
+  const PST = {
+    p: [[0,  0,  0,  0,  0,  0,  0,  0],[50, 50, 50, 50, 50, 50, 50, 50],[10, 10, 20, 30, 30, 20, 10, 10],[5,  5, 10, 25, 25, 10,  5,  5],[0,  0,  0, 20, 20,  0,  0,  0],[5, -5,-10,  0,  0,-10, -5,  5],[5, 10, 10,-20,-20, 10, 10,  5],[0,  0,  0,  0,  0,  0,  0,  0]
+    ],
+    n: [[-50,-40,-30,-30,-30,-30,-40,-50],[-40,-20,  0,  0,  0,  0,-20,-40],[-30,  0, 10, 15, 15, 10,  0,-30],[-30,  5, 15, 20, 20, 15,  5,-30],[-30,  0, 15, 20, 20, 15,  0,-30],[-30,  5, 10, 15, 15, 10,  5,-30],[-40,-20,  0,  5,  5,  0,-20,-40],[-50,-40,-30,-30,-30,-30,-40,-50]
+    ],
+    b: [[-20,-10,-10,-10,-10,-10,-10,-20],[-10,  0,  0,  0,  0,  0,  0,-10],[-10,  0,  5, 10, 10,  5,  0,-10],[-10,  5,  5, 10, 10,  5,  5,-10],[-10,  0, 10, 10, 10, 10,  0,-10],[-10, 10, 10, 10, 10, 10, 10,-10],[-10,  5,  0,  0,  0,  0,  5,-10],[-20,-10,-10,-10,-10,-10,-10,-20]
+    ],
+    r: [[0,  0,  0,  0,  0,  0,  0,  0],[5, 10, 10, 10, 10, 10, 10,  5],[-5,  0,  0,  0,  0,  0,  0, -5],[-5,  0,  0,  0,  0,  0,  0, -5],[-5,  0,  0,  0,  0,  0,  0, -5],[-5,  0,  0,  0,  0,  0,  0, -5],[-5,  0,  0,  0,  0,  0,  0, -5],[0,  0,  0,  5,  5,  0,  0,  0]
+    ],
+    q: [[-20,-10,-10, -5, -5,-10,-10,-20],[-10,  0,  0,  0,  0,  0,  0,-10],[-10,  0,  5,  5,  5,  5,  0,-10],[ -5,  0,  5,  5,  5,  5,  0, -5],[  0,  0,  5,  5,  5,  5,  0, -5],[-10,  5,  5,  5,  5,  5,  0,-10],[-10,  0,  5,  0,  0,  0,  0,-10],[-20,-10,-10, -5, -5,-10,-10,-20]
+    ],
+    k: [[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-20,-30,-30,-40,-40,-30,-30,-20],[-10,-20,-20,-20,-20,-20,-20,-10],[ 20, 20,  0,  0,  0,  0, 20, 20],[ 20, 30, 10,  0,  0, 10, 30, 20]
+    ]
+  };
+
+  function evaluateBoard(gameNode) {
     let score = 0;
     const board = gameNode.board();
+
+    // Purely evaluates board state. Game-over states are handled in minimax now for performance.
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const piece = board[r][c];
         if (piece) {
-          // Positional logic: Small advantage points for central control
-          const posBonus = (piece.type === 'p' || piece.type === 'n') ? 
-            (0.5 - Math.abs(3.5 - r)/8 - Math.abs(3.5 - c)/8) * 3 : 0;
-          
-          const val = pieceValues[piece.type] + posBonus;
+          // Automatically flips the row perspective if the piece is Black
+          const pstRow = piece.color === 'w' ? r : 7 - r;
+          const posBonus = PST[piece.type][pstRow][c];
+
+          const val = PIECE_VALUES[piece.type] + posBonus;
           score += piece.color === 'w' ? val : -val;
         }
       }
     }
     return score;
   }
-  function minimax(gameNode, depth, alpha, beta, isMaximizing) {
-    if (depth === 0 || gameNode.game_over()) {
-      return evaluateBoard(gameNode);
+
+  // Helper to efficiently order moves (using chess.js verbose moves)
+  function orderMoves(moves) {
+    return moves.sort((a, b) => {
+      let scoreA = 0;
+      let scoreB = 0;
+
+      // MVV-LVA logic: prioritize capturing high-value pieces with low-value attackers
+      if (a.captured) scoreA += 10 * PIECE_VALUES[a.captured] - PIECE_VALUES[a.piece];
+      if (a.flags.includes('p')) scoreA += PIECE_VALUES[a.promotion] || 900;
+
+      if (b.captured) scoreB += 10 * PIECE_VALUES[b.captured] - PIECE_VALUES[b.piece];
+      if (b.flags.includes('p')) scoreB += PIECE_VALUES[b.promotion] || 900;
+
+      return scoreB - scoreA;
+    });
+  }
+
+  // Quiescence Search: Only searches capturing sequences to avoid the horizon effect
+  function quiescence(gameNode, alpha, beta, isMaximizing, qsDepth = 0) {
+    const standPat = evaluateBoard(gameNode);
+
+    // Evaluate the "quiet" board state
+    if (isMaximizing) {
+      if (standPat >= beta) return beta;
+      if (alpha < standPat) alpha = standPat;
+    } else {
+      if (standPat <= alpha) return alpha;
+      if (standPat < beta) beta = standPat;
     }
-    const mvs = gameNode.moves();
+
+    // Prevent endless capture chains lagging the browser
+    if (qsDepth > 4) return standPat;
+
+    // Only check moves that involve a capture
+    const captures = gameNode.moves({ verbose: true }).filter(m => m.captured);
+    const orderedCaptures = orderMoves(captures);
+
+    for (const move of orderedCaptures) {
+      gameNode.move(move.san);
+      const score = quiescence(gameNode, alpha, beta, !isMaximizing, qsDepth + 1);
+      gameNode.undo();
+
+      if (isMaximizing) {
+        if (score >= beta) return beta;
+        if (score > alpha) alpha = score;
+      } else {
+        if (score <= alpha) return alpha;
+        if (score < beta) beta = score;
+      }
+    }
+
+    return isMaximizing ? alpha : beta;
+  }
+
+  function minimax(gameNode, depth, alpha, beta, isMaximizing) {
+    // Graceful handling depending on chess.js version
+    const isGameOver = typeof gameNode.isGameOver === 'function' ? gameNode.isGameOver() : gameNode.game_over();
+
+    if (isGameOver) {
+      if (gameNode.in_draw() || gameNode.in_stalemate() || gameNode.in_threefold_repetition()) return 0;
+      
+      // Penalize slower checkmates / Reward faster checkmates depending on perspective
+      return gameNode.turn() === 'w' ? -99999 - depth : 99999 + depth;
+    }
+
+    // Once depth limits are hit, switch strictly to Quiescence Search for capturing moves
+    if (depth === 0) {
+      return quiescence(gameNode, alpha, beta, isMaximizing, 0);
+    }
+
+    // Use verbose mode to get objects, saving us from manually checking strings for 'x'
+    const moves = orderMoves(gameNode.moves({ verbose: true }));
+
     if (isMaximizing) {
       let maxEval = -Infinity;
-      for (let i = 0; i < mvs.length; i++) {
-        gameNode.move(mvs[i]);
-        let ev = minimax(gameNode, depth - 1, alpha, beta, false);
+      for (const move of moves) {
+        gameNode.move(move.san);
+        const evalScore = minimax(gameNode, depth - 1, alpha, beta, false);
         gameNode.undo();
-        maxEval = Math.max(maxEval, ev);
-        alpha = Math.max(alpha, ev);
-        if (beta <= alpha) break;
+        
+        maxEval = Math.max(maxEval, evalScore);
+        alpha = Math.max(alpha, evalScore);
+        if (beta <= alpha) break; // alpha-beta cutoff
       }
       return maxEval;
     } else {
       let minEval = Infinity;
-      for (let i = 0; i < mvs.length; i++) {
-        gameNode.move(mvs[i]);
-        let ev = minimax(gameNode, depth - 1, alpha, beta, true);
+      for (const move of moves) {
+        gameNode.move(move.san);
+        const evalScore = minimax(gameNode, depth - 1, alpha, beta, true);
         gameNode.undo();
-        minEval = Math.min(minEval, ev);
-        beta = Math.min(beta, ev);
-        if (beta <= alpha) break;
+        
+        minEval = Math.min(minEval, evalScore);
+        beta = Math.min(beta, evalScore);
+        if (beta <= alpha) break; // alpha-beta cutoff
       }
       return minEval;
     }
   }
+
   function getBestMove(gameNode, depth) {
-    const mvs = gameNode.moves();
+    // Fetch detailed moves to power MVV-LVA logic later
+    const moves = gameNode.moves({ verbose: true });
+    if (moves.length === 0) return null;
+    
+    const orderedMoves = orderMoves(moves);
+    const isWhite = gameNode.turn() === 'w';
+
     let bestMove = null;
-    let bestValue = gameNode.turn() === 'w' ? -Infinity : Infinity;
-    // Randomly shuffle moves slightly to prevent deterministic, repetitive mirror openings
-    mvs.sort(() => Math.random() - 0.5);
-    for (let i = 0; i < mvs.length; i++) {
-      gameNode.move(mvs[i]);
-      let boardValue = minimax(gameNode, depth - 1, -Infinity, Infinity, gameNode.turn() === 'w');
+    let bestValue = isWhite ? -Infinity : Infinity;
+
+    for (const move of orderedMoves) {
+      gameNode.move(move.san);
+      const boardValue = minimax(gameNode, depth - 1, -Infinity, Infinity, !isWhite);
       gameNode.undo();
-      
-      if (gameNode.turn() === 'w') {
+
+      if (isWhite) {
         if (boardValue > bestValue) {
           bestValue = boardValue;
-          bestMove = mvs[i];
+          bestMove = move;
         }
       } else {
         if (boardValue < bestValue) {
           bestValue = boardValue;
-          bestMove = mvs[i];
+          bestMove = move;
         }
       }
     }
-    return bestMove || mvs[0];
+
+    // Extract the SAN string notation (e.g. "Nf3") which behaves perfectly with your existing bot execution logic
+    return bestMove ? bestMove.san : orderedMoves[0].san;
   }
+
   function makeBotMove() {
     if (!gameActive) return;
     // Show thinking UI
@@ -358,7 +568,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (level === '2') { 
         // Level 2: Intermediate, 2-Ply Minimax Read
         move = getBestMove(game, 2);
-      } else { 
+      } else if (level === '3') { 
         // Level 3: Advanced, 3-Ply Minimax Read
         move = getBestMove(game, 3);
       }
