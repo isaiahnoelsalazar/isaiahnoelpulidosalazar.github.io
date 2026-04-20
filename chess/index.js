@@ -557,29 +557,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function makeBotMove() {
     if (!gameActive) return;
-    // Show thinking UI
-    // spinnerContainer.classList.replace("display-none", "display-flex");
+    const level = botLevelDropdown.getValue();
+    const mvs = game.moves();
+    let move;
     
-    // Timeout prevents block & allows the DOM spinner to render before intensive calculation
-    setTimeout(() => {
-      const level = botLevelDropdown.getValue();
-      const mvs = game.moves();
-      let move;
-      
-      if (level === '1') { 
-        move = mvs[Math.floor(Math.random() * mvs.length)];
-      } else if (level === '2') { 
-        move = getBestMove(game, 1);
-      } else if (level === '3') { 
-        move = getBestMove(game, 2);
-      }
-      
-      game.move(move);
-      updateBoard();
-      updateSidebar();
-      // spinnerContainer.classList.replace("display-flex", "display-none");
-      checkGameOver();
-    }, 50);
+    if (level === '1') { 
+      move = mvs[Math.floor(Math.random() * mvs.length)];
+    } else if (level === '2') { 
+      move = getBestMove(game, 1);
+    } else if (level === '3') { 
+      move = getBestMove(game, 2);
+    }
+    
+    game.move(move);
+    updateBoard();
+    updateSidebar();
+    checkGameOver();
   }
   // Initialize the first match
   startGame();
