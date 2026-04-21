@@ -1,0 +1,34 @@
+name: Build C# EXE
+
+on:
+  push:
+    paths:
+      - 'cs/**.cs'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Create project
+        run: dotnet new console -n choke
+
+      - name: Replace Program.cs
+        run: copy cs\choke.cs choke\Program.cs
+
+      - name: Publish EXE
+        run: dotnet publish choke -c Release -r win-x64 --self-contained true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-exe
+          path: choke/bin/Release/net8.0/win-x64/publish/
