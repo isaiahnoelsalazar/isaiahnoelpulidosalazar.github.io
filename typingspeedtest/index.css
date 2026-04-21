@@ -1,0 +1,32 @@
+body {
+    margin: 0;
+    background-color: #f5f5f5;
+    color: #333333;
+    scrollbar-width: none;
+}
+
+@keyframes caret-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+.caret-blink {
+    animation: caret-blink 1s infinite;
+}
+.letter {
+    display: inline-block;
+    transition: color 0.15s ease;
+}
+.letter.correct {
+    color: #333333;
+}
+.letter.error {
+    color: #ef4444;
+}
+.letter.extra {
+    color: #ef4444;
+    opacity: 0.7;
+}
+
+#words-container::-webkit-scrollbar {
+    display: none;
+}

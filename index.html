@@ -43,7 +43,8 @@
                     {
                         "source": "list",
                         "urls": [
-                            "/ecdemo/"
+                            "/projects/",
+                            "/contact/"
                         ]
                     }
                 ],
@@ -53,9 +54,13 @@
                         "urls": [
                             "/calm/",
                             "/chess/",
+                            "/ecdemo/",
                             "/ecide/",
                             "/ecwebsitebuilder/",
+                            "/minesweeper/",
+                            "/snake/",
                             "/sudoku/",
+                            "/typingspeedtest/",
                         ]
                     }
                 ]
@@ -74,7 +79,13 @@
     </head>
     <body class="margin-0 padding-0 display-flex flexDirection-column">
         <div id="hero"></div>
-        <h2 id="projects" class="margin-0 padding-16px_16px_0">Projects</h2>
+        <div class="display-flex justifyContent-space-between alignItems-center">
+            <h2 id="projects" class="margin-0 padding-16px_16px_0">Projects</h2>
+            <a href="/projects/" class="backgroundColor-var(--ec-bg,_#eee) margin-16px_16px_0 padding-8px_16px cursor-pointer textDecoration-none color-inherit display-flex ecbounce-2 alignItems-center borderRadius-8px fontSize-16px fontWeight-500">
+                <p class="margin-0 padding-4px_0">All projects</p>
+                <img src="arrow_right.png" alt="arrow right icon" class="height-24px width-24px marginLeft-8px display-block">
+            </a>
+        </div>
         <div class="separator padding-0_16px"></div>
         <div id="project-list" class="padding-0_16px display-grid gridTemplateColumns-1fr_1fr_1fr tablet:gridTemplateColumns-1fr_1fr mobile:gridTemplateColumns-1fr gap-16px width-100% boxSizing-border-box">
             <div class="flex-1 display-flex flexDirection-column gap-12px boxSizing-border-box minWidth-200px">
@@ -167,7 +178,53 @@
                     </div>
                 </a>
             </div>
+            <div class="flex-1 display-flex flexDirection-column gap-12px boxSizing-border-box minWidth-200px">
+                <a href="/snake/" class="ecbounce-2 cursor-pointer textDecoration-none color-inherit boxSizing-border-box fontFamily--apple-system,_BlinkMacSystemFont,_'Segoe_UI',_Roboto,_sans-serif  background-var(--ec-bg,_#fff) border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-12px overflow-hidden display-flex flexDirection-column">
+                    <div class="display-flex alignItems-center gap-10px padding-14px_16px_0">
+                        <div class="display-flex flexDirection-column gap-1px">
+                            <p class="fontSize-14px fontWeight-600 color-var(--ec-text,_#212529) margin-0">Snake</p>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden">
+                        <img loading="lazy" src="https://i.ibb.co/dwjzLVK6/Screenshot-2026-04-21-091024.png" alt="Snake image" class="height-200px width-100% objectFit-contain marginTop-14px display-block borderTop-1px_solid_var(--ec-border,_#dee2e6) borderBottom-1px_solid_var(--ec-border,_#dee2e6)">
+                    </div>
+                    <div class="padding-12px_16px fontSize-14px color-var(--ec-text,_#212529) lineHeight-1.6 flex-1">
+                        <p class="margin-0">A simple snake game built with ECStyleSheet and ECElements.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="flex-1 display-flex flexDirection-column gap-12px boxSizing-border-box minWidth-200px">
+                <a href="/typingspeedtest/" class="ecbounce-2 cursor-pointer textDecoration-none color-inherit boxSizing-border-box fontFamily--apple-system,_BlinkMacSystemFont,_'Segoe_UI',_Roboto,_sans-serif  background-var(--ec-bg,_#fff) border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-12px overflow-hidden display-flex flexDirection-column">
+                    <div class="display-flex alignItems-center gap-10px padding-14px_16px_0">
+                        <div class="display-flex flexDirection-column gap-1px">
+                            <p class="fontSize-14px fontWeight-600 color-var(--ec-text,_#212529) margin-0">Typing Speed Test</p>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden">
+                        <img loading="lazy" src="https://i.ibb.co/3G2zPb5/Screenshot-2026-04-21-091112.png" alt="Typing Speed Test image" class="height-200px width-100% objectFit-contain marginTop-14px display-block borderTop-1px_solid_var(--ec-border,_#dee2e6) borderBottom-1px_solid_var(--ec-border,_#dee2e6)">
+                    </div>
+                    <div class="padding-12px_16px fontSize-14px color-var(--ec-text,_#212529) lineHeight-1.6 flex-1">
+                        <p class="margin-0">A typing speed test built with ECStyleSheet and ECElements.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="flex-1 display-flex flexDirection-column gap-12px boxSizing-border-box minWidth-200px">
+                <a href="/minesweeper/" class="ecbounce-2 cursor-pointer textDecoration-none color-inherit boxSizing-border-box fontFamily--apple-system,_BlinkMacSystemFont,_'Segoe_UI',_Roboto,_sans-serif  background-var(--ec-bg,_#fff) border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-12px overflow-hidden display-flex flexDirection-column">
+                    <div class="display-flex alignItems-center gap-10px padding-14px_16px_0">
+                        <div class="display-flex flexDirection-column gap-1px">
+                            <p class="fontSize-14px fontWeight-600 color-var(--ec-text,_#212529) margin-0">Minesweeper</p>
+                        </div>
+                    </div>
+                    <div class="overflow-hidden">
+                        <img loading="lazy" src="https://i.ibb.co/jZ12wK3K/Screenshot-2026-04-21-091132.png" alt="Minesweeper image" class="height-200px width-100% objectFit-contain marginTop-14px display-block borderTop-1px_solid_var(--ec-border,_#dee2e6) borderBottom-1px_solid_var(--ec-border,_#dee2e6)">
+                    </div>
+                    <div class="padding-12px_16px fontSize-14px color-var(--ec-text,_#212529) lineHeight-1.6 flex-1">
+                        <p class="margin-0">A simple minesweeper game built with ECStyleSheet and ECElements.</p>
+                    </div>
+                </a>
+            </div>
         </div>
+        <div id="pagination-tabs" class="display-flex justifyContent-center gap-8px marginTop-24px width-100%"></div>
         <h2 id="contact" class="margin-0 padding-32px_16px_0">Contact</h2>
         <div class="separator padding-0_16px"></div>
     </body>

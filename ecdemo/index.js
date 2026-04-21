@@ -1,10 +1,8 @@
-/* Topbar */
 var topbar=new ECTopbar("EC Demo");
 var stBtn=new ECButton("Menu",{variant:"outline"});
 topbar.addAction(stBtn);
 document.getElementById("topbar-mount").appendChild(topbar.element);
 
-/* Sidebar */
 var sidebar=new ECSidebar("Navigation");
 function buildNav(dark){
   var lc=dark?"#89b4fa":"#1a73e8",bc=dark?"#2a2a4a":"#eee";
@@ -20,20 +18,17 @@ sidebar.setContent(buildNav(false));
 document.getElementById("sidebar-mount").appendChild(sidebar.element);
 stBtn.onClick(function(){ sidebar.open(); });
 
-/* Modal */
 var modal=new ECModal("Welcome to ECElements");
 modal.setContent("<p style='margin:0 0 10px;font-size:15px;'>This modal starts <strong>closed</strong>.</p><p style='margin:0;font-size:14px;color:#555;'>modal.open() shows it, modal.close() hides it.</p>");
 modal.addFooterButton("Cancel",function(){ modal.close(); },"outline");
 modal.addFooterButton("Got it!",function(){ modal.close(); });
 document.getElementById("modal-mount").appendChild(modal.element);
 
-/* Themes */
 [["Blue",ECTheme.Blue],["Green",ECTheme.Green],["Red",ECTheme.Red],["Purple",ECTheme.Purple],["Orange",ECTheme.Orange]].forEach(function(p){
   var b=new ECButton(p[0]); b.setTheme(p[1]);
   document.getElementById("theme-demo-row").appendChild(b.element);
 });
 
-/* Buttons */
 var bRow=document.getElementById("btn-demo-row");
 var fb=new ECButton("Filled"); fb.onClick(function(){ new ECToast("Clicked!",{type:"info"}).show(); });
 var ob=new ECButton("Outline",{variant:"outline"});
@@ -41,7 +36,6 @@ var mb=new ECButton("Open Modal"); mb.onClick(function(){ modal.open(); });
 var db=new ECButton("Disabled"); db.disable();
 [fb,ob,mb,db].forEach(function(b){ bRow.appendChild(b.element); });
 
-/* Toast */
 var tRow=document.getElementById("toast-demo-row");
 [{l:"Info",t:"info",m:"Some information."},{l:"Success",t:"success",m:"Action completed!"},{l:"Warning",t:"warning",m:"Watch out!"},{l:"Error",t:"error",m:"Something failed."}].forEach(function(x){
   var b=new ECButton(x.l); var c={info:"#1a73e8",success:"#2e7d32",warning:"#e65100",error:"#c62828"}[x.t];
@@ -50,13 +44,11 @@ var tRow=document.getElementById("toast-demo-row");
   tRow.appendChild(b.element);
 });
 
-/* Sidebar buttons */
 var sdRow=document.getElementById("sidebar-demo-row");
 var osb=new ECButton("Open Sidebar"); osb.onClick(function(){ sidebar.setTheme(ECTheme.Blue).disableDarkMode(); sidebar.setContent(buildNav(false)); sidebar.open(); });
 var dsb=new ECButton("Dark Sidebar"); dsb.onClick(function(){ sidebar.setTheme(ECTheme.Dark).enableDarkMode(); sidebar.setContent(buildNav(true)); sidebar.open(); });
 sdRow.appendChild(osb.element); sdRow.appendChild(dsb.element);
 
-/* Form */
 var fc=document.getElementById("form-demo");
 fc.appendChild(new ECTextbox({label:"Your name",placeholder:"Jane Doe"}).element);
 var dd=new ECDropdown({label:"Framework",items:[{value:"vanilla",label:"Vanilla JS"},{value:"react",label:"React"},{value:"vue",label:"Vue"},{value:"svelte",label:"Svelte"}]});
@@ -71,12 +63,10 @@ var tog=new ECToggle("Notifications",false); tog.onChange(function(on){ new ECTo
 var chk=new ECCheckbox("I agree to the terms");
 tw.appendChild(tog.element); tw.appendChild(chk.element); fc.appendChild(tw);
 
-/* Badges */
 var br=document.getElementById("badge-demo-row");
 var bl={default:"Default",primary:"Primary",success:"Active",warning:"Pending",danger:"Blocked",info:"Info"};
 ["default","primary","success","warning","danger","info"].forEach(function(t){ br.appendChild(new ECBadge(bl[t],t).element); });
 
-/* Dark mode */
 var dr=document.getElementById("dark-demo-row");
 var dkb=new ECButton("Dark Button"); dkb.setTheme(ECTheme.Dark).enableDarkMode();
 var dkm=new ECModal("Dark Modal"); dkm.setContent("<p style='margin:0'>Dark themed modal.</p>");
@@ -85,7 +75,6 @@ dkm.setTheme(ECTheme.Dark).enableDarkMode(); document.body.appendChild(dkm.eleme
 var odmb=new ECButton("Open Dark Modal"); odmb.setTheme(ECTheme.Dark).enableDarkMode(); odmb.onClick(function(){ dkm.open(); });
 dr.appendChild(dkb.element); dr.appendChild(odmb.element);
 
-/* Accordion */
 var acc=new ECAccordion({items:[
   {title:"What is ECElements?",content:"<p style='margin:0;font-size:14px;'>A zero-dependency component library. Two script tags and you're ready.</p>"},
   {title:"Does it need a build step?",content:"<p style='margin:0;font-size:14px;'>No build step. ECStyleSheet handles CSS dynamically.</p>"},
@@ -94,7 +83,6 @@ var acc=new ECAccordion({items:[
 ]});
 document.getElementById("accordion-demo").appendChild(acc.element);
 
-/* List */
 var ld=document.getElementById("list-demo");
 var bl2=new ECList({variant:"bordered"});
 ["Dashboard","Settings","Profile","Logout"].forEach(function(s){ bl2.addItem(s,function(){ new ECToast("Clicked: "+s,{type:"info",duration:1500}).show(); }); });
@@ -112,10 +100,8 @@ var hw=document.createElement("div"); hw.style.cssText="flex:2;min-width:200px;"
 var hlbl=document.createElement("p"); hlbl.style.cssText="margin:0 0 6px;font-size:12px;color:#888;font-weight:500;"; hlbl.textContent="Horizontal";
 hw.appendChild(hlbl); hw.appendChild(hl.element); ld.appendChild(hw);
 
-/* Breadcrumbs */
 document.getElementById("breadcrumb-demo").appendChild(new ECBreadcrumbs([{label:"Home",href:"#"},{label:"Settings",href:"#"},{label:"Profile"}]).element);
 
-/* Stepper */
 var stepper=new ECStepper(["Account","Details","Payment","Confirm"],1);
 document.getElementById("stepper-demo").appendChild(stepper.element);
 var sbr=document.getElementById("stepper-btns");
@@ -123,7 +109,6 @@ var spb=new ECButton("Back",{variant:"outline"}); spb.onClick(function(){ steppe
 var snb=new ECButton("Next"); snb.onClick(function(){ stepper.next(); });
 sbr.appendChild(spb.element); sbr.appendChild(snb.element);
 
-/* Divider */
 var dv=document.getElementById("divider-demo");
 var dp0=document.createElement("p"); dp0.style.cssText="margin:0;font-size:14px;color:#555;"; dp0.textContent="Plain:";
 dv.appendChild(dp0); dv.appendChild(new ECDivider().element);
@@ -131,14 +116,12 @@ dv.appendChild(new ECDivider({label:"or continue with"}).element);
 var dp2=document.createElement("p"); dp2.style.cssText="margin:0;font-size:14px;color:#555;"; dp2.textContent="Dashed + thick:";
 dv.appendChild(dp2); dv.appendChild(new ECDivider({dashed:true,thick:true}).element);
 
-/* Progress */
 var pd=document.getElementById("progress-demo");
 var bar1=new ECProgressBar({label:"Upload",value:65}); pd.appendChild(bar1.element);
 var bar2=new ECProgressBar({label:"Storage",value:82}); bar2.setTheme(ECTheme.Red); bar2.setHeight(12); pd.appendChild(bar2.element);
 var bar3=new ECProgressBar({label:"Tasks",value:30}); bar3.setTheme(ECTheme.Green); pd.appendChild(bar3.element);
 var pv=65; setInterval(function(){ pv=pv>=100?0:pv+1; bar1.setValue(pv); },80);
 
-/* Spinner */
 var spd=document.getElementById("spinner-demo");
 var s1=new ECSpinner({size:"sm"}),s2=new ECSpinner(),s3=new ECSpinner({size:"lg"});
 var s4=new ECSpinner(); s4.setTheme(ECTheme.Red);
@@ -149,7 +132,6 @@ var s5=new ECSpinner(); s5.setTheme(ECTheme.Green);
   w.appendChild(p[0].element); w.appendChild(l); spd.appendChild(w);
 });
 
-/* Tooltip */
 var td=document.getElementById("tooltip-demo");
 var tsb=new ECButton("Save"),tdb=new ECButton("Delete"),tib=new ECButton("?",{variant:"outline"});
 tdb.setTheme(ECTheme.Red); tib.element.style.width="36px";
@@ -157,7 +139,6 @@ td.appendChild(new ECTooltip(tsb,"Saves your work").element);
 td.appendChild(new ECTooltip(tdb,"Permanently deletes this item").element);
 td.appendChild(new ECTooltip(tib,"Click for more information").element);
 
-/* Popup */
 var ppd=document.getElementById("popup-demo");
 var pb1=new ECButton("Options"); var pop1=new ECPopup(pb1);
 pop1.setWidth(180);
@@ -179,7 +160,6 @@ pop2.setContent("<div style='padding:4px 0;'>"
   +"</div>");
 ppd.appendChild(pop2.element);
 
-/* DataTable */
 var people=[
   {name:"Alice Chen",  role:"Admin", dept:"Engineering",status:"Active",  joined:"2021-03"},
   {name:"Bob Martin",  role:"Editor",dept:"Marketing",  status:"Active",  joined:"2020-11"},
@@ -209,7 +189,6 @@ var dtable=new ECDataTable({
 });
 document.getElementById("datatable-demo").appendChild(dtable.element);
 
-/* Slider */
 var sdemo=document.getElementById("slider-demo");
 var vs=new ECSlider({label:"Volume",min:0,max:100,value:60,suffix:"%",ticks:["0%","25%","50%","75%","100%"]});
 vs.onChange(function(v){ new ECToast("Volume: "+v+"%",{type:"info",duration:900}).show(); });
@@ -219,7 +198,6 @@ var bs=new ECSlider({label:"Brightness",min:0,max:10,value:7});
 bs.setTheme(ECTheme.Orange);
 [vs,ps,bs].forEach(function(s){ sdemo.appendChild(s.element); });
 
-/* DatePicker */
 var dpdemo=document.getElementById("datepicker-demo");
 var dp1=new ECDatePicker({label:"Start date"});
 dp1.onChange(function(iso){ new ECToast("Selected: "+iso,{type:"success",duration:2000}).show(); });
@@ -229,12 +207,10 @@ var dp2=new ECDatePicker({label:"End date"}); dp2.setValue("2025-12-31");
   w.appendChild(dp.element); dpdemo.appendChild(w);
 });
 
-/* FileUpload */
 var upl=new ECFileUpload({accept:".pdf,.png,.jpg,.jpeg",multiple:true,maxSize:5*1024*1024,title:"Drag & Drop files here",subtitle:"PDF, PNG, JPG up to 5 MB"});
 upl.onChange(function(files){ if(files.length) new ECToast(files.length+" file(s) selected",{type:"info",duration:1500}).show(); });
 document.getElementById("fileupload-demo").appendChild(upl.element);
 
-/* Rating */
 var rdemo=document.getElementById("rating-demo");
 var r1=new ECRating({value:3}); r1.onChange(function(v){ new ECToast(v?"Rated "+v+" stars!":"Rating cleared",{type:v?"success":"info",duration:1500}).show(); });
 var r2=new ECRating({value:4,readonly:true});
@@ -249,7 +225,6 @@ r3r.appendChild(r3.element); r3r.appendChild(r3l);
 rcol.appendChild(r1.element); rcol.appendChild(r2r); rcol.appendChild(r3r);
 rdemo.appendChild(rcol);
 
-/* Card */
 var cdemo=document.getElementById("card-demo");
 var c1=new ECMediaCard({author:"Jane Doe",timestamp:"2 hours ago",
   content:"<p style='margin:0'>Just shipped ECMediaCard! Supports author headers, images, and footer actions. Give it a like!</p>",
@@ -265,7 +240,6 @@ var c2=new ECMediaCard({author:"Dev Team",timestamp:"Yesterday",
   actions:[{icon:"❤️",label:"Favorite",onClick:function(){ new ECToast("Favorited!",{type:"success",duration:1200}).show(); }}]});
 c2.setWidth(300); cdemo.appendChild(c2.element);
 
-/* Hero */
 var hero=new ECHero({
   eyebrow:"Zero dependencies · Pure JS",
   title:"Build UIs without the overhead",
@@ -278,7 +252,6 @@ var hero=new ECHero({
 });
 document.getElementById("hero-demo").appendChild(hero.element);
 
-/* TreeView */
 var treeData = [
   { label: "Documents", expanded: true, children: [
     { label: "Projects", expanded: true, children: [
@@ -292,7 +265,6 @@ var treeData = [
 var tree = new ECTreeView(treeData);
 document.getElementById("treeview-demo").appendChild(tree.element);
 
-/* Avatar & Indicator */
 var avContainer = document.getElementById("avatar-indicator-demo");
 var av1 = new ECAvatar({ initials: "JD", size: "48px" });
 var ind1 = new ECIndicator(av1, { type: "online" });
@@ -303,7 +275,6 @@ avContainer.appendChild(ind1.element);
 avContainer.appendChild(ind2.element);
 avContainer.appendChild(av3.element);
 
-/* Lightbox */
 var lb = new ECLightbox();
 var lbThumb = document.createElement("img");
 lbThumb.src = "https://picsum.photos/seed/lb/150/100";
@@ -313,7 +284,6 @@ lbThumb.addEventListener("click", function() {
 });
 document.getElementById("lightbox-demo").appendChild(lbThumb);
 
-/* Carousel */
 var carItems = [];
 for (var i = 1; i <= 5; i++) {
   var slide = document.createElement("img");
@@ -324,7 +294,6 @@ for (var i = 1; i <= 5; i++) {
 var carousel = new ECCarousel(carItems);
 document.getElementById("carousel-demo").appendChild(carousel.element);
 
-/* Banner */
 var bdemo = document.getElementById("banner-demo");
 var b1 = new ECBanner("Server maintenance is scheduled for Sunday at 2:00 AM UTC.");
 var b2 = new ECBanner("⚡ 50% OFF FLASH SALE ⚡ USE CODE: ECELEMENTS", { loop: true });
@@ -332,14 +301,12 @@ b2.setTheme(ECTheme.Red);
 bdemo.appendChild(b1.element);
 bdemo.appendChild(b2.element);
 
-/* Countdown */
 var targetDate = new Date();
 targetDate.setDate(targetDate.getDate() + 3); // 3 days from now
 targetDate.setHours(targetDate.getHours() + 5); 
 var timer = new ECCountdown(targetDate);
 document.getElementById("countdown-demo").appendChild(timer.element);
 
-/* Grid */
 var grid = new ECGrid({ columns: 2, gap: "16px" });
 for (var i = 1; i <= 2; i++) {
   var gCard = new ECMediaCard({
@@ -350,7 +317,6 @@ for (var i = 1; i <= 2; i++) {
 }
 document.getElementById("grid-demo").appendChild(grid.element);
 
-/* Drawer */
 var drawer = new ECDrawer("Settings");
 drawer.setContent("<div style='padding:10px 0;'><p>Configure your preferences below.</p><div id='drawer-opts'></div></div>");
 var dBtn = new ECButton("Open Bottom Drawer");
@@ -358,7 +324,6 @@ dBtn.onClick(function() { drawer.open(); });
 document.getElementById("drawer-demo").appendChild(dBtn.element);
 document.body.appendChild(drawer.element);
 
-// Add some toggles to the drawer for effect
 setTimeout(function() {
   var dopts = document.getElementById('drawer-opts');
   dopts.appendChild(new ECToggle("Dark Mode", false).element);
