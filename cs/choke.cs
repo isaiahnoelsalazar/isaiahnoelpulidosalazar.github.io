@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
+// current version - v1
+
 enum TokenType
 {
     Var, Say, Get, Out, Job,
