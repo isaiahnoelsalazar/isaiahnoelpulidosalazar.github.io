@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-// current version - v1
+// current version - v1.0.0
 
 enum TokenType
 {
