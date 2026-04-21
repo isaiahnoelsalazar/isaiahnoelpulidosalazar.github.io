@@ -2,8 +2,8 @@ name: Build C# EXE
 
 on:
   push:
-    paths:
-      - 'cs/**.cs'
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -27,8 +27,9 @@ jobs:
       - name: Publish EXE
         run: dotnet publish choke -c Release -r win-x64 --self-contained true
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Create Release and Upload EXE
+        uses: softprops/action-gh-release@v2
         with:
-          name: compiled-exe
-          path: choke/bin/Release/net8.0/win-x64/publish/
+          files: choke/bin/Release/net8.0/win-x64/publish/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
