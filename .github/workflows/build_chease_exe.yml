@@ -2,8 +2,8 @@ name: Build C# EXE
 
 on:
   push:
-    tags:
-      - 'v*'
+    paths:
+      - 'cs/**.cs'
 
 jobs:
   build:
