@@ -64,6 +64,6 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
           name: Release v${{ steps.version.outputs.VERSION }}
-          files: publish/**/*.exe
+          files: publish/chease-v${{ steps.version.outputs.VERSION }}.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
