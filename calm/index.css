@@ -11,7 +11,6 @@ body {
   font-weight: 300;
   overflow-x: hidden;
 }
-/* ── ANIMATED BACKGROUND ── */
 .bg-canvas {
   position: fixed; inset: 0; z-index: 0;
   background: radial-gradient(ellipse at 20% 20%, #0a1a3a 0%, transparent 60%),
@@ -33,7 +32,6 @@ body {
   75%  { transform: translate(-50px,20px) scale(1.05); }
   100% { transform: translate(0,0) scale(1); }
 }
-/* Floating particles */
 .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .particle {
   position: absolute; width: 2px; height: 2px; border-radius: 50%;

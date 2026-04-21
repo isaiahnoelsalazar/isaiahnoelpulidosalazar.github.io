@@ -1,14 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Global App State
   window.currentAppTheme = 'Blue';
   window.currentAppDarkMode = false;
   window.globalCanvasClasses = 'padding-40px'; 
-  // Set builder export button
   const exportBtn = new ECButton('Export', { variant: 'filled' });
   exportBtn.element.className += ' width-100% padding-10px';
   exportBtn.onClick(exportToHybridHTML);
   document.getElementById('sidebar-footer').appendChild(exportBtn.element);
-  // Wrapper for standard Typography elements (rendered directly in DOM)
   class ECTypography {
     constructor(tag, defaultText) {
       this.element = document.createElement(tag);
@@ -29,10 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if(align && align !== 'left') this.element.classList.add(`textAlign-${align}`);
       this.element.dataset.baseClass = this.element.className.replace(this._builder_data.className || '', '').trim();
     }
-    // Empty methods to satisfy theme loopers
     setTheme() {} enableDarkMode() {} disableDarkMode() {}
   }
-  // Wrapper for Layout Containers supporting dynamic columns
   class LayoutContainer {
     constructor(type) {
       this.element = document.createElement('div');
@@ -68,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
     getColumns() { return this._builder_data.columns; }
     setTheme() {} enableDarkMode() {} disableDarkMode() {}
   }
-  // Factory for Instantiating Components with defaults
   const componentFactory = {
     'Typography: Heading': () => new ECTypography('h1', 'Main Heading'),
     'Typography: Sub-heading': () => new ECTypography('h2', 'Sub-heading'),
@@ -218,7 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return r;
     }
   };
-  // Property Editor Bindings
   const typoProps = [
     { label: 'Text', key: 'text', type: 'textarea', update: (o, v) => o.setText(v) },
     { label: 'Alignment', key: 'align', type: 'select', options: ['left', 'center', 'right', 'justify'], update: (o, v) => o.setAlign(v) }
@@ -410,7 +403,6 @@ document.addEventListener("DOMContentLoaded", () => {
        'ECButton', 'ECRadio', 'ECToggle', 'ECCheckbox', 'ECTextbox', 'ECDropdown', 'ECSlider', 'ECDatePicker', 'ECFileUpload', 'ECRating'
     ]
   };
-  // Populate Sidebar Components
   const list = document.getElementById('component-list');
   Object.keys(componentGroups).forEach(group => {
     const title = document.createElement('div');
@@ -426,7 +418,6 @@ document.addEventListener("DOMContentLoaded", () => {
       list.appendChild(btn);
     });
   });
-  // Wrap initialized component to attach controls and behaviors
   function wrapComponent(type, ecObj) {
     const wrapper = document.createElement('div');
     wrapper.className = 'canvas-item';
@@ -481,7 +472,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     return wrapper;
   }
-  // Drag & Drop Implementation
   document.addEventListener('dragover', e => {
     e.preventDefault();
     const target = e.target.closest('.drop-zone');
@@ -683,7 +673,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  // Generate JS for ECElements
   function generateComponentJS(type, data, v) {
     let code = `    // ${type}\n    `;
     const safeStr = val => JSON.stringify(val || '');
@@ -758,7 +747,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(jsString => {
       ecElementsCode = jsString;
     });
-  // Hybrid Export Logic
   function exportToHybridHTML() {
     let jsCode = `    // ECWebsite Generated JS Components\n`;
     let htmlOut = ``;
@@ -845,6 +833,5 @@ ${jsCode}
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
-  // Initialize Defaults
   showGlobalProperties();
 });

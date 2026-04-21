@@ -23,20 +23,15 @@
     <link rel="manifest" href="../manifest.json">
     <meta name="msapplication-TileColor" content="#F4F4F4">
     <meta name="msapplication-TileImage" content="../ms-icon-144x144.png">
-    <title>Sudoku</title>
-    <link rel="stylesheet" href="index.css">
+    <title>Snake</title>
+    <!-- Load ECStyleSheet first, then ECElements -->
+    <script src="../js/ECStyleSheet.js"></script>
+    <script src="../js/ECElements.js"></script>
 </head>
-<body>
-
-    <h1>Sudoku</h1>
-
-    <div class="controls">
-        <button onclick="initGame()">New Game</button>
-    </div>
-
-    <div id="sudoku-grid"></div>
-
-    <div id="message"></div>
+<body class="background-var(--ec-bg,_#fff) margin-0 padding-0 display-flex flexDirection-column alignItems-center justifyContent-center minHeight-100vh">
+    
+    <!-- Game Container -->
+    <div id="game-app" class="display-flex flexDirection-column alignItems-center gap-16px padding-8px"></div>
 
     <script src="index.js"></script>
 </body>

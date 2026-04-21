@@ -1,15 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // -------------------------------------------------------------
-    // 1. UI Initialization (Using ECElements)
-    // -------------------------------------------------------------
     const topbar = new window.ECTopbar("ECIDE");
     document.getElementById('topbar-container').appendChild(topbar.element);
 
-    // Build the "File" dropdown menu
     const fileMenuBtn = new window.ECButton("File", { variant: "outline" });
     const filePopup = new window.ECPopup(fileMenuBtn);
     
-    // Fix Popup expanding off the right side of the screen
     filePopup._box.classList.remove('left-0');
     filePopup._box.classList.add('right-0');
 
@@ -24,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     filePopup.setContent(fileList.element);
     topbar.addAction(filePopup.element);
 
-    // Create the "New File" Modal
     const newFileModal = new window.ECModal("Create New File");
     document.body.appendChild(newFileModal.element);
     
@@ -33,7 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
         placeholder: "e.g. index.html, script.js" 
     });
     
-    // Allow pressing "Enter" to create the file
     newFileInput.onEnter((val) => createNewFile(val));
     
     newFileModal.setContent(newFileInput.element);
@@ -46,9 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => newFileInput.element.querySelector('input').focus(), 50);
     }
 
-    // -------------------------------------------------------------
-    // 2. Monaco Editor Initialization
-    // -------------------------------------------------------------
     require(['vs/editor/editor.main'], function() {
         window.editor = monaco.editor.create(document.getElementById('editor-container'), {
             value: [
@@ -57,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 '// Click "File -> New File" to create a document.'
             ].join('\n'),
             language: 'javascript',
-            theme: 'vs-light', // Using Light Theme
+            theme: 'vs-light',
             fontFamily: "'Roboto Mono', monospace",
             fontSize: 14,
             automaticLayout: true,
@@ -65,9 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // -------------------------------------------------------------
-    // 3. File System Access Logic
-    // -------------------------------------------------------------
     let currentDirHandle = null;
     let currentFileHandle = null;
 
@@ -82,22 +69,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return map[ext] || 'plaintext';
     }
 
-    // CREATE NEW FILE
     async function createNewFile(filename) {
         if (!filename.trim()) return;
         try {
             if (currentDirHandle) {
-                // Generate file in the currently opened folder
                 const newHandle = await currentDirHandle.getFileHandle(filename, { create: true });
                 
-                // Refresh the file tree to show the new file
                 const treeData = await buildTree(currentDirHandle);
                 renderCustomTree(document.getElementById('tree-container'), treeData);
                 
-                // Automatically open it
                 await openFile({ label: filename, handle: newHandle, path: filename, isDir: false });
             } else {
-                // If no folder is open, prepare an in-memory file waiting to be saved
                 currentFileHandle = null;
                 if (window.editor) {
                     monaco.editor.setModelLanguage(window.editor.getModel(), getLanguage(filename));
@@ -111,17 +93,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // OPEN SINGLE FILE
     async function openSingleFile() {
         try {
             const [fileHandle] = await window.showOpenFilePicker();
             await openFile({ label: fileHandle.name, handle: fileHandle, path: fileHandle.name, isDir: false });
-        } catch (err) {
-            // User cancelled the prompt
-        }
+        } catch (err) { }
     }
 
-    // OPEN FOLDER
     async function openFolder() {
         try {
             currentDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
@@ -135,11 +113,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // SAVE FILE
     async function saveFile() {
         if (!window.editor) return;
 
-        // Redirect to "Save As" if this is a newly created, unsaved memory file
         if (!currentFileHandle) {
             return await saveFileAs();
         }
@@ -155,14 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // SAVE FILE AS
     async function saveFileAs() {
         if (!window.editor) return;
         try {
             const handle = await window.showSaveFilePicker();
             currentFileHandle = handle;
             
-            // Execute the write
             const writable = await currentFileHandle.createWritable();
             await writable.write(window.editor.getValue());
             await writable.close();
@@ -176,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // BUILD TREE (Recursive AST map creation)
     async function buildTree(dirHandle, path = '') {
         const entries = [];
         try {
@@ -186,7 +159,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (handle.kind === 'file') {
                     entries.push({ label: name, handle, path: nodePath, isDir: false });
                 } else if (handle.kind === 'directory') {
-                    // Skip super heavy nodes like .git / node_modules for web performance
                     if (name === '.git' || name === 'node_modules') continue; 
                     
                     const children = await buildTree(handle, nodePath);
@@ -206,7 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return entries;
     }
 
-    // RENDER TREE (Visual rendering via ECElements / ECStyleSheet classes)
     function renderCustomTree(container, nodes, level = 0) {
         if (level === 0) container.innerHTML = '';
         
@@ -254,7 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // PUSH DATA INTO MONACO
     async function openFile(node) {
         try {
             const file = await node.handle.getFile();

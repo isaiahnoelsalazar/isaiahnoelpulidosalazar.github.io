@@ -1,7 +1,6 @@
 const gridElement = document.getElementById('sudoku-grid');
 const messageElement = document.getElementById('message');
 let solution = [];
-// --- Core Logic: Board Generation ---
 function isValid(board, row, col, num) {
     for (let x = 0; x < 9; x++) {
         if (board[row][x] === num || board[x][col] === num) return false;
@@ -37,9 +36,8 @@ function generateBoard() {
     solveSudoku(board);
     solution = board.map(row => [...row]);
     
-    // Remove numbers (difficulty)
     let playable = board.map(row => [...row]);
-    let attempts = 40; // Higher = harder
+    let attempts = 40;
     while (attempts > 0) {
         let r = Math.floor(Math.random() * 9);
         let c = Math.floor(Math.random() * 9);
@@ -50,7 +48,6 @@ function generateBoard() {
     }
     return playable;
 }
-// --- UI Logic ---
 function initGame() {
     gridElement.innerHTML = '';
     messageElement.innerText = '';

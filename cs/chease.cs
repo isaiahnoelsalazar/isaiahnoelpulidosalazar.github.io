@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
+// current version - 1.0.0
+
 enum TokenType
 {
     Var, Say, Get, Out, Job,
@@ -331,7 +333,7 @@ internal class Program
     {
         if (args.Length != 1)
         {
-            Console.WriteLine("Usage: choke.exe filename.choke");
+            Console.WriteLine("Usage: chease.exe filename.chease");
             return;
         }
 
