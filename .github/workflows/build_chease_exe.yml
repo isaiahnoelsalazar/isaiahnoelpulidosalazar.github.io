@@ -19,17 +19,17 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Create project
-        run: dotnet new console -n choke
+        run: dotnet new console -n chease
 
       - name: Replace Program.cs
-        run: copy cs\choke.cs choke\Program.cs
+        run: copy cs\chease.cs chease\Program.cs
 
       - name: Publish EXE
-        run: dotnet publish choke -c Release -r win-x64 --self-contained true
+        run: dotnet publish chease -c Release -r win-x64 --self-contained true
 
       - name: Create Release and Upload EXE
         uses: softprops/action-gh-release@v2
         with:
-          files: choke/bin/Release/net8.0/win-x64/publish/*.exe
+          files: chease/bin/Release/net8.0/win-x64/publish/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
