@@ -45,7 +45,7 @@ jobs:
         run: copy cs\chease.cs chease\Program.cs
 
       - name: Publish EXE
-        run: dotnet publish chease -c Release -r win-x64 --self-contained true
+        run: dotnet publish chease -c Release -r win-x64 --self-contained true -o publish
 
       - name: Create Git tag
         shell: pwsh
@@ -63,6 +63,6 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
           name: Release v${{ steps.version.outputs.VERSION }}
-          files: chease/bin/Release/net8.0/win-x64/publish/*.exe
+          files: publish/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
