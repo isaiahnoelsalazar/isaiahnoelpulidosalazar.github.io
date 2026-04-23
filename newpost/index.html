@@ -21,7 +21,7 @@
         document.getElementById('postForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const statusText = document.getElementById('status');
-            statusText.innerText = "Publishing to GitHub Pages... Please wait.";
+            statusText.innerText = "Publishing... Please wait.";
             
             const title = document.getElementById('title').value;
             const content = document.getElementById('content').value;

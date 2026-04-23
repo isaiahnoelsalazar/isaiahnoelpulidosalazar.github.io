@@ -37,7 +37,7 @@ app.post('/api/create-post', async (req, res) => {
         });
 
         let indexHtml = Buffer.from(indexData.content, 'base64').toString('utf8');
-        const newLink = `<li><a href="/${repo}/posts/${slug}.html">${title}</a></li>`;
+        const newLink = `<li><a href="/${slug}.html">${title}</a></li>`;
         
         indexHtml = indexHtml.replace('</ul>', `    ${newLink}\n    </ul>`);
 
@@ -50,7 +50,7 @@ app.post('/api/create-post', async (req, res) => {
             branch
         });
 
-        res.json({ success: true, url: `/${repo}/posts/${slug}.html` });
+        res.json({ success: true, url: `/${slug}.html` });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, error: error.message });
