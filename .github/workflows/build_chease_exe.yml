@@ -1,4 +1,4 @@
-name: Build C# EXE
+name: Build chease.exe
 
 on:
   push:
@@ -81,7 +81,7 @@ jobs:
         id: check_tag
         shell: pwsh
         run: |
-          $tag = "v${{ steps.version.outputs.VERSION }}"
+          $tag = "chease-v${{ steps.version.outputs.VERSION }}"
           git fetch --tags
 
           if (git tag -l $tag) {
