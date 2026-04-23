@@ -24,7 +24,7 @@
     <link rel="manifest" href="../manifest.json">
     <meta name="msapplication-TileColor" content="#F4F4F4">
     <meta name="msapplication-TileImage" content="../ms-icon-144x144.png">
-    <title>My Blog</title>
+    <title>Posts</title>
     <script src="../js/ECStyleSheet.js"></script>
     <script src="../js/ECElements.js"></script>
 </head>
@@ -42,7 +42,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const topbar = new ECTopbar("My Developer Blog");
+            const topbar = new ECTopbar("Posts");
             const newPostBtn = new ECButton("New Post").onClick(() => {
                 window.location.href = '../newpost/index.html';
             });

@@ -38,13 +38,15 @@
             
             const title = document.createElement('h1');
             title.className = "marginTop-0 marginBottom-24px color-var(--ec-text,_#212529) textAlign-center fontSize-24px";
-            title.textContent = "Admin Login";
+            title.textContent = "Login";
             card.appendChild(title);
 
-            const passwordInput = new ECButton.ECTextbox ? new ECTextbox({ label: "Password", type: "password", placeholder: "Enter admin password" }) : new ECTextbox({ label: "Password", placeholder: "Enter admin password" });
+            const passwordInput = new ECTextbox({ 
+                label: "Password", 
+                type: "password", 
+                placeholder: "Enter admin password" 
+            });
             
-            // Note: Since ECElements textboxes default to type="text", we manually set it to password
-            passwordInput._input.type = "password"; 
             card.appendChild(passwordInput.element);
 
             const spacer = document.createElement('div');
