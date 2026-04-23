@@ -53,7 +53,7 @@ app.post('/api/create-post', async (req, res) => {
 
         const { data: indexData } = await octokit.repos.getContent({
             owner, repo,
-            path: 'posts/index.html',
+            path: 'posts/',
             ref: branch
         });
 
@@ -72,7 +72,7 @@ app.post('/api/create-post', async (req, res) => {
 
         await octokit.repos.createOrUpdateFileContents({
             owner, repo,
-            path: 'posts/index.html',
+            path: 'posts/',
             message: `Update index with: ${title}`,
             content: Buffer.from(indexHtml).toString('base64'),
             sha: indexData.sha,
