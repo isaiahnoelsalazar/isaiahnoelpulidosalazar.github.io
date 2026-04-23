@@ -35,17 +35,17 @@
         document.addEventListener('DOMContentLoaded', () => {
             const pwd = localStorage.getItem('admin_pwd');
             if (!pwd) {
-                window.location.href = '../login/index.html';
+                window.location.href = '../login/';
                 return;
             }
 
             const topbar = new ECTopbar("Create New Post");
             const logoutBtn = new ECButton("Logout", { variant: "outline" }).onClick(() => {
                 localStorage.removeItem('admin_pwd');
-                window.location.href = '../login/index.html';
+                window.location.href = '../login/';
             });
             const postsBtn = new ECButton("View Posts", { variant: "outline" }).onClick(() => {
-                window.location.href = '../posts/index.html';
+                window.location.href = '../posts/';
             });
             
             topbar.addAction(postsBtn);
@@ -105,7 +105,7 @@
                         if (response.status === 401) {
                             new ECToast("Unauthorized. Incorrect password.", { type: "error" }).show();
                             localStorage.removeItem('admin_pwd');
-                            setTimeout(() => window.location.href = '../login/index.html', 1500);
+                            setTimeout(() => window.location.href = '../login/', 1500);
                         } else {
                             new ECToast("Error: " + result.error, { type: "error" }).show();
                             publishBtn.enable();

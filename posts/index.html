@@ -49,7 +49,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const topbar = new ECTopbar("Posts");
             const newPostBtn = new ECButton("New Post").onClick(() => {
-                window.location.href = '../newpost/index.html';
+                window.location.href = '../newpost/';
             });
             topbar.addAction(newPostBtn);
             document.getElementById('topbar-container').appendChild(topbar.element);
