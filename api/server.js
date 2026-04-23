@@ -81,7 +81,7 @@ app.post('/api/create-post', async (req, res) => {
 
         res.json({ success: true, url: `/${slug}.html` });
     } catch (error) {
-        console.error(error);
+        console.error(error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
