@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-// current version - 1.0.1
+// current version - 1.0.0
 
 // changes:
-// - added support for single-file self-contained EXE publishing
-// - fix workflow for creating executable
+// - no changes, rework release system
 
 enum TokenType
 {

@@ -94,7 +94,7 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         shell: pwsh
         run: |
-          $tag = "v${{ steps.version.outputs.VERSION }}"
+          $tag = "chease-v${{ steps.version.outputs.VERSION }}"
 
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -106,8 +106,8 @@ jobs:
         if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.VERSION }}
-          name: v${{ steps.version.outputs.VERSION }}
+          tag_name: chease-v${{ steps.version.outputs.VERSION }}
+          name: chease-v${{ steps.version.outputs.VERSION }}
           body: |
             Auto-generated release.
 
