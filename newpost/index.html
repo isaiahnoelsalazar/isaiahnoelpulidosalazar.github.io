@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create New Post</title>
+</head>
+<body>
+    <h1>Write a New Post</h1>
+    <form id="postForm">
+        <label>Title:</label><br>
+        <input type="text" id="title" required style="width: 300px;"><br><br>
+        
+        <label>Content:</label><br>
+        <textarea id="content" rows="10" required style="width: 300px;"></textarea><br><br>
+        
+        <button type="submit">Publish Post</button>
+    </form>
+    <p id="status"></p>
+
+    <script>
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusText = document.getElementById('status');
+            statusText.innerText = "Publishing to GitHub Pages... Please wait.";
+            
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            try {
+                // Change this URL to your Render API URL later!
+                const response = await fetch('https://YOUR_RENDER_URL.onrender.com/api/create-post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content })
+                });
+
+                const result = await response.json();
+                if(result.success) {
+                    statusText.innerHTML = `Success! <a href="${result.url}">View your post here</a> (It may take 1-2 minutes for GitHub Pages to rebuild).`;
+                } else {
+                    statusText.innerText = "Error: " + result.error;
+                }
+            } catch (err) {
+                statusText.innerText = "Connection failed. Is the Render server running?";
+            }
+        });
+    </script>
+</body>
+</html>
