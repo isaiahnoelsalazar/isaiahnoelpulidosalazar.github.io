@@ -59,9 +59,19 @@ app.post('/api/create-post', async (req, res) => {
 
         let indexHtml = Buffer.from(indexData.content, 'base64').toString('utf8');
         
-        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        const publishDate = new Date().toLocaleDateString('en-US', dateOptions);
+        const date = new Date();
+        date.setHours(date.getHours() + 8);
 
+        const dateOptions = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+        };
+
+        const publishDate = date.toLocaleString('en-US', dateOptions);
+        
         const newLink = `
         <div class="padding-20px border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-12px background-#fff hover:boxShadow-0_4px_16px_rgba(0,0,0,0.08) transition-boxShadow_0.2s_ease">
             <h2 class="margin-0"><a href="${slug}.html" class="color-var(--ec-text,_#212529) textDecoration-none hover:color-var(--ec-accent,_#1a73e8)">${title}</a></h2>
