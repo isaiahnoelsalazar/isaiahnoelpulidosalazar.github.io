@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F4F4F4">
+    <meta name="author" content="Isaiah Noel P. Salazar">
+    <link rel="apple-touch-icon" sizes="57x57" href="../apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="../apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="../apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="../apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="../apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="../apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="../apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="../android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="msapplication-TileColor" content="#F4F4F4">
+    <meta name="msapplication-TileImage" content="../ms-icon-144x144.png">
+    <title>Admin Panel</title>
+    <script src="../js/ECStyleSheet.js"></script>
+    <script src="../js/ECElements.js"></script>
+</head>
+<body class="background-var(--ec-surface,_#f8f9fa) margin-0 padding-20px">
+    <div id="app-container" class="maxWidth-800px margin-0_auto"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('admin_token');
+            const isAdmin = localStorage.getItem('is_admin') === 'true';
+
+            if (!token || !isAdmin) {
+                window.location.href = '../newpost/';
+                return;
+            }
+
+            const API_URL = 'https://isaiahnoelpulidosalazar-github-io.onrender.com/api';
+
+            const topbar = new ECTopbar("Admin Panel - User Management");
+            const backBtn = new ECButton("Back to Dashboard", { variant: "outline" }).onClick(() => window.location.href = '../newpost/');
+            topbar.addAction(backBtn);
+            document.body.appendChild(topbar.element);
+
+            const spacer = document.createElement('div');
+            spacer.className = "height-80px";
+            document.getElementById('app-container').appendChild(spacer);
+
+            const card = document.createElement('div');
+            card.className = "background-var(--ec-bg,_#fff) padding-32px borderRadius-12px boxShadow-0_4px_16px_rgba(0,0,0,0.05) border-1px_solid_var(--ec-border,_#dee2e6)";
+            
+            const title = document.createElement('h2');
+            title.className = "marginTop-0 color-var(--ec-text,_#212529)";
+            title.textContent = "Manage User Permissions";
+            card.appendChild(title);
+
+            const table = new ECDataTable({
+                columns:[
+                    { key: "Id", label: "ID" },
+                    { key: "Username", label: "Username" },
+                    { 
+                        key: "CanPost", 
+                        label: "Can Publish Posts",
+                        render: (val, row) => {
+                            const toggle = new ECToggle("", val).onChange(async (newVal) => {
+                                row.CanPost = newVal;
+                                await updatePermissions(row.Id, row.CanPost, row.IsAdmin);
+                            });
+                            return toggle.element;
+                        }
+                    },
+                    { 
+                        key: "IsAdmin", 
+                        label: "Is Administrator",
+                        render: (val, row) => {
+                            const toggle = new ECToggle("", val).onChange(async (newVal) => {
+                                row.IsAdmin = newVal;
+                                await updatePermissions(row.Id, row.CanPost, row.IsAdmin);
+                            });
+                            return toggle.element;
+                        }
+                    }
+                ],
+                pageSize: 10
+            });
+            card.appendChild(table.element);
+            document.getElementById('app-container').appendChild(card);
+
+            async function updatePermissions(userId, canPost, isAdminFlag) {
+                try {
+                    const res = await fetch(`${API_URL}/users/${userId}/permissions`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ canPost, isAdmin: isAdminFlag })
+                    });
+                    const result = await res.json();
+                    if(result.success) new ECToast("Permissions updated.", { type: "success" }).show();
+                    else new ECToast(result.error, { type: "error" }).show();
+                } catch(e) {
+                    new ECToast("Failed to update.", { type: "error" }).show();
+                }
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const result = await res.json();
+                if (result.success) {
+                    table.setData(result.users);
+                } else {
+                    new ECToast("Failed to load users: " + result.error, { type: "error" }).show();
+                }
+            } catch (err) {
+                new ECToast("Network error.", { type: "error" }).show();
+            }
+        });
+    </script>
+</body>
+</html>
