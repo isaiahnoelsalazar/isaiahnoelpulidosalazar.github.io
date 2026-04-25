@@ -60,16 +60,13 @@ app.post('/api/register', async (req, res) => {
         const checkUser = await pool.request().input('username', sql.NVarChar, username).query('SELECT Id FROM Users WHERE Username = @username');
         if (checkUser.recordset.length > 0) return res.status(400).json({ success: false, error: "Username already taken." });
 
-        const countRes = await pool.request().query('SELECT COUNT(*) as cnt FROM Users');
-        const isFirstUser = countRes.recordset[0].cnt === 0;
-        
         const hash = await bcrypt.hash(password, 10);
         
         await pool.request()
             .input('username', sql.NVarChar, username)
             .input('hash', sql.NVarChar, hash)
-            .input('isAdmin', sql.Bit, isFirstUser ? 1 : 0)
-            .input('canPost', sql.Bit, isFirstUser ? 1 : 0)
+            .input('isAdmin', sql.Bit, 0)
+            .input('canPost', sql.Bit, 0)
             .query('INSERT INTO Users (Username, PasswordHash, IsAdmin, CanPost) VALUES (@username, @hash, @isAdmin, @canPost)');
             
         res.json({ success: true, message: "Registered successfully! You can now log in." });
