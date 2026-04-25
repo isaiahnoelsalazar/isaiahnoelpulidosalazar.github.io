@@ -41,13 +41,18 @@
     <script src="../js/ECStyleSheet.js"></script>
     <script src="../js/ECElements.js"></script>
 </head>
-<body class="background-var(--ec-surface,_#f8f9fa) margin-0 padding-20px">
-    <div id="topbar-container"></div>
-    <div class="height-80px"></div> 
-    
-    <div class="maxWidth-800px margin-0_auto">
-        <h1 class="margin-0_0_24px color-var(--ec-text,_#212529)">Latest Updates</h1>
-
+<body class="background-var(--ec-surface,_#f8f9fa) margin-0">
+    <div class="display-flex alignItems-center justifyContent-space-between">
+        <h2 id="projects" class="margin-0 padding-16px_16px_0">Posts</h2>
+        <a href="/newpost/" class="backgroundColor-var(--ec-bg,_#eee) margin-8px_16px_0 position-absolute right-0 top-6px padding-4px_16px cursor-pointer textDecoration-none color-inherit display-flex ecbounce-2 alignItems-center borderRadius-8px fontSize-16px fontWeight-500">
+            <p class="margin-0 padding-4px_0">New Post</p>
+        </a>
+    </div>
+    <div class="separator padding-0_16px"></div>
+    <div class="display-flex justifyContent-end">
+        
+    </div>
+    <div class="maxWidth-800px margin-0_auto padding-0_16px">
         <div id="post-list" class="display-flex flexDirection-column gap-16px">
             <!-- INJECT_HERE -->
         <div class="post-link padding-20px border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-12px background-#fff hover:boxShadow-0_4px_16px_rgba(0,0,0,0.08) transition-boxShadow_0.2s_ease"><h2 class="margin-0"><a href="quantum-mechanics.html" class="color-var(--ec-text,_#212529) textDecoration-none hover:color-var(--ec-accent,_#1a73e8)">Quantum Mechanics</a></h2><p class="color-var(--ec-text-muted,_#6c757d) fontSize-14px marginTop-8px marginBottom-0">Published on April 25, 2026 at 5:32 PM by isaiahnoelpulidosalazar</p></div>
@@ -56,13 +61,9 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const topbar = new ECTopbar("Posts");
-            const newPostBtn = new ECButton("New Post").onClick(() => {
-                window.location.href = '../newpost/';
-            });
-            topbar.addAction(newPostBtn);
-            document.getElementById('topbar-container').appendChild(topbar.element);
+        document.querySelectorAll(".separator").forEach(separator => {
+            let divider = new ECDivider();
+            separator.appendChild(divider.element);
         });
     </script>
 </body>
