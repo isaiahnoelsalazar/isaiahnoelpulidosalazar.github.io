@@ -170,6 +170,7 @@ app.post('/api/create-post', requireAuth, requireCanPost, async (req, res) => {
         
         const newLink = `\n        <div class="post-link padding-20px border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-12px background-#fff hover:boxShadow-0_4px_16px_rgba(0,0,0,0.08) transition-boxShadow_0.2s_ease"><h2 class="margin-0"><a href="${slug}.html" class="color-var(--ec-text,_#212529) textDecoration-none hover:color-var(--ec-accent,_#1a73e8)">${title}</a></h2><p class="color-var(--ec-text-muted,_#6c757d) fontSize-14px marginTop-8px marginBottom-0">Published on ${publishDate} by ${authorUsername}</p></div>`;
         indexHtml = indexHtml.replace('<!-- INJECT_HERE -->', `<!-- INJECT_HERE -->${newLink}`);
+        indexHtml = indexHtml.replace('"urls": [', `"urls": [\n                        ${slug}.html,`);
 
         await octokit.repos.createOrUpdateFileContents({ owner, repo, path: 'posts/index.html', message: `Update index with: ${title}`, content: Buffer.from(indexHtml).toString('base64'), sha: indexData.sha, branch });
 
