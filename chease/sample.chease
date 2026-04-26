@@ -1,35 +1,81 @@
 say "Enter your name:"
-var name get
+var string name get
 
 say "Enter your age:"
-var age get
+var number age get
 
-var nextAge age + 1
+var number nextAge age
+increment nextAge 1
+
+var boolean isAdult age >= 18
 
 job greet person [
     say "Hello " + person
 ]
 
-job add a b [
+job add a b[
     out a + b
 ]
 
-job multiply a b [
+job multiply a b[
     out a * b
 ]
 
 greet name
 
+if isAdult[
+    say "You are an adult."
+] else [
+    say "You are a minor."
+]
+
 say "Next year you will be " + nextAge
 
 say "Enter first number:"
-var x get
+var number x get
 
 say "Enter second number:"
-var y get
+var number y get
 
-var sum add x, y
-var product multiply x, y
+var number sum add x, y
+var number product multiply x, y
 
 say "Sum is " + sum
 say "Product is " + product
+
+say ""
+say "--- Arrays ---"
+array number myNumbers x, y, sum, product
+
+var number arrLen array length myNumbers
+say "Array length is: " + arrLen
+
+var number firstItem array get myNumbers, 0
+say "First item in array is: " + firstItem
+
+
+say ""
+say "--- Dictionaries ---"
+dictionary userProfile name: name, age: age, "adult": isAdult
+
+var number dictLen dictionary length userProfile
+say "Dictionary has " + dictLen + " entries."
+
+var string dictName dictionary get key userProfile "name"
+say "Name fetched from dictionary: " + dictName
+
+
+say ""
+say "--- Loops & Loop Breaking ---"
+var number count 0
+say "Counting up to 3..."
+
+repeat forever[
+    increment count 1
+    say count
+    
+    if count == 3[
+        say "Reached 3! Breaking out of the loop..."
+        out
+    ]
+]

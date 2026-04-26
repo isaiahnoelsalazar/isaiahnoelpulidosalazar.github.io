@@ -3,7 +3,7 @@ name: Build chease.exe
 on:
   push:
     paths:
-      - 'cs/**.cs'
+      - 'cs/chease.cs'
   workflow_dispatch:
 
 permissions:

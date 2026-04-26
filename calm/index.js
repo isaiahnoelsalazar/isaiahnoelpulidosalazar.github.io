@@ -1,5 +1,5 @@
 const container = document.getElementById('particles');
-for (let i = 0; i < 77; i++) {
+for (let i = 0; i < 64; i++) {
   const p = document.createElement('div');
   p.className = 'particle';
   p.style.cssText = `
