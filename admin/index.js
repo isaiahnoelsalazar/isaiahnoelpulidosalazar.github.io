@@ -1,3 +1,8 @@
+document.querySelectorAll(".separator").forEach(separator => {
+    let divider = new ECDivider();
+    separator.appendChild(divider.element);
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('admin_token');
     const isAdmin = localStorage.getItem('is_admin') === 'true';
@@ -6,15 +11,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     const API_URL = 'https://isaiahnoelpulidosalazar-github-io.onrender.com/api';
-    const topbar = new ECTopbar("Admin Panel - User Management");
-    const backBtn = new ECButton("Back to Dashboard", { variant: "outline" }).onClick(() => window.location.href = '../newpost/');
-    topbar.addAction(backBtn);
-    document.body.appendChild(topbar.element);
-    const spacer = document.createElement('div');
-    spacer.className = "height-80px";
-    document.getElementById('app-container').appendChild(spacer);
     const card = document.createElement('div');
-    card.className = "background-var(--ec-bg,_#fff) padding-32px borderRadius-12px boxShadow-0_4px_16px_rgba(0,0,0,0.05) border-1px_solid_var(--ec-border,_#dee2e6)";
+    card.className = "background-var(--ec-bg,_#fff) margin-0_16px padding-32px borderRadius-12px boxShadow-0_4px_16px_rgba(0,0,0,0.05) border-1px_solid_var(--ec-border,_#dee2e6)";
     
     const title = document.createElement('h2');
     title.className = "marginTop-0 color-var(--ec-text,_#212529)";

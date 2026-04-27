@@ -1,3 +1,8 @@
+document.querySelectorAll(".separator").forEach(separator => {
+    let divider = new ECDivider();
+    separator.appendChild(divider.element);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('admin_token');
     if (!token) {
@@ -6,26 +11,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const isAdmin = localStorage.getItem('is_admin') === 'true';
     const canPost = localStorage.getItem('can_post') === 'true';
-    const topbar = new ECTopbar("Dashboard");
+    const topbar = document.getElementById('topbar');
     
     if (isAdmin) {
-        const adminBtn = new ECButton("Admin Panel", { variant: "white" }).onClick(() => window.location.href = '../admin/');
-        topbar.addAction(adminBtn);
+        const adminBtn = document.createElement('a');
+        adminBtn.href = '../admin/';
+        adminBtn.className = "backgroundColor-var(--ec-bg,_#eee) margin-8px_8px_0_0 padding-4px_16px cursor-pointer textDecoration-none color-inherit display-flex ecbounce-2 alignItems-center borderRadius-8px fontSize-16px fontWeight-500";
+        adminBtn.innerHTML = `<p class="margin-0 padding-4px_0">Admin Panel</p>`;
+        topbar.appendChild(adminBtn);
     }
-    const postsBtn = new ECButton("View Posts", { variant: "outline" }).onClick(() => window.location.href = '../posts/');
-    const logoutBtn = new ECButton("Logout", { variant: "outline" }).onClick(() => {
-        localStorage.clear();
-        window.location.href = '../login/';
-    });
+    const postsBtn = document.createElement('a');
+    postsBtn.href = '../posts/';
+    postsBtn.className = "backgroundColor-var(--ec-bg,_#eee) margin-8px_8px_0_0 padding-4px_16px cursor-pointer textDecoration-none color-inherit display-flex ecbounce-2 alignItems-center borderRadius-8px fontSize-16px fontWeight-500";
+    postsBtn.innerHTML = `<p class="margin-0 padding-4px_0">View Posts</p>`;
+    const logoutBtn = document.createElement('a');
+    logoutBtn.href = '../login/';
+    logoutBtn.className = "backgroundColor-var(--ec-bg,_#eee) margin-8px_16px_0_0 padding-4px_16px cursor-pointer textDecoration-none color-inherit display-flex ecbounce-2 alignItems-center borderRadius-8px fontSize-16px fontWeight-500";
+    logoutBtn.innerHTML = `<p class="margin-0 padding-4px_0">Logout</p>`;
     
-    topbar.addAction(postsBtn);
-    topbar.addAction(logoutBtn);
-    document.body.appendChild(topbar.element);
-    const spacer = document.createElement('div');
-    spacer.className = "height-80px";
-    document.getElementById('app-container').appendChild(spacer);
+    topbar.appendChild(postsBtn);
+    topbar.appendChild(logoutBtn);
+
     const card = document.createElement('div');
-    card.className = "background-var(--ec-bg,_#fff) padding-32px borderRadius-12px boxShadow-0_4px_16px_rgba(0,0,0,0.05) border-1px_solid_var(--ec-border,_#dee2e6)";
+    card.className = "background-var(--ec-bg,_#fff) margin-0_16px padding-32px borderRadius-12px boxShadow-0_4px_16px_rgba(0,0,0,0.05) border-1px_solid_var(--ec-border,_#dee2e6)";
     if (!canPost && !isAdmin) {
         card.innerHTML = `
             <h2 class="marginTop-0 color-var(--ec-text,_#212529)">Access Restricted</h2>
