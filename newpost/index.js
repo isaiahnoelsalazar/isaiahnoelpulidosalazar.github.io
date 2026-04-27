@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
     postsBtn.className = "backgroundColor-var(--ec-bg,_#eee) margin-8px_8px_0_0 padding-4px_16px cursor-pointer textDecoration-none color-inherit display-flex ecbounce-2 alignItems-center borderRadius-8px fontSize-16px fontWeight-500";
     postsBtn.innerHTML = `<p class="margin-0 padding-4px_0">View Posts</p>`;
     const logoutBtn = document.createElement('a');
+    logoutBtn.addEventListener('click', () => {
+        localStorage.clear();
+    });
     logoutBtn.href = '../login/';
     logoutBtn.className = "backgroundColor-var(--ec-bg,_#eee) margin-8px_16px_0_0 padding-4px_16px cursor-pointer textDecoration-none color-inherit display-flex ecbounce-2 alignItems-center borderRadius-8px fontSize-16px fontWeight-500";
     logoutBtn.innerHTML = `<p class="margin-0 padding-4px_0">Logout</p>`;
