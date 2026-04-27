@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-// current version - 1.2.0
+// current version - 1.2.1
 
 // changes:
-// - add note and note blocks for comments
+// - fix repeat block variable values not sticking after every loop iteration
 
 enum TokenType
 {
@@ -481,11 +481,27 @@ class Environment
 
     public Environment(Environment parent = null) { _parent = parent; }
 
-    public void Set(string name, object value) { _vars[name] = value; }
+    public void Define(string name, object value) { _vars[name] = value; }
+
+    public void Set(string name, object value) {
+        Environment target = FindEnvironment(name);
+        if (target != null) {
+            target._vars[name] = value;
+        } else {
+            _vars[name] = value;
+        }
+    }
+
+    private Environment FindEnvironment(string name) {
+        if (_vars.ContainsKey(name)) return this;
+        if (_parent != null) return _parent.FindEnvironment(name);
+        return null;
+    }
+
     public object Get(string name)
     {
-        if (_vars.ContainsKey(name)) return _vars[name];
-        if (_parent != null) return _parent.Get(name);
+        Environment target = FindEnvironment(name);
+        if (target != null) return target._vars[name];
         throw new Exception($"Runtime Error: Variable '{name}' not found.");
     }
 }
@@ -515,7 +531,7 @@ class Evaluator
         if (stmt is VarStmt varStmt) {
             object val = EvaluateExpr(varStmt.Value, env);
             if (varStmt.Type.HasValue) val = CastToType(val, varStmt.Type.Value);
-            env.Set(varStmt.Name, val);
+            env.Define(varStmt.Name, val);
         }
         else if (stmt is SayStmt sayStmt) Console.WriteLine(EvaluateExpr(sayStmt.Value, env));
         else if (stmt is OutStmt outStmt) {
@@ -534,19 +550,17 @@ class Evaluator
         }
         else if (stmt is IfStmt ifStmt) {
             bool cond = Convert.ToBoolean(EvaluateExpr(ifStmt.Condition, env));
-            Environment localEnv = new Environment(env);
             if (cond) {
-                foreach (var s in ifStmt.TrueBody) ExecuteStmt(s, localEnv);
+                foreach (var s in ifStmt.TrueBody) ExecuteStmt(s, env);
             } else {
-                foreach (var s in ifStmt.FalseBody) ExecuteStmt(s, localEnv);
+                foreach (var s in ifStmt.FalseBody) ExecuteStmt(s, env);
             }
         }
         else if (stmt is RepeatStmt repStmt) {
             if (repStmt.IsForever) {
                 while (true) {
                     try {
-                        Environment localEnv = new Environment(env);
-                        foreach (var s in repStmt.Body) ExecuteStmt(s, localEnv);
+                        foreach (var s in repStmt.Body) ExecuteStmt(s, env);
                     }
                     catch (BreakException) { break; }
                 }
@@ -554,8 +568,7 @@ class Evaluator
                 long count = Convert.ToInt64(EvaluateExpr(repStmt.Count, env));
                 for (long i = 0; i < count; i++) {
                     try {
-                        Environment localEnv = new Environment(env);
-                        foreach (var s in repStmt.Body) ExecuteStmt(s, localEnv);
+                        foreach (var s in repStmt.Body) ExecuteStmt(s, env);
                     }
                     catch (BreakException) { break; }
                 }
@@ -566,16 +579,16 @@ class Evaluator
             foreach (var el in arrStmt.Elements) {
                 list.Add(CastToType(EvaluateExpr(el, env), arrStmt.Type));
             }
-            env.Set(arrStmt.Name, list);
+            env.Define(arrStmt.Name, list);
         }
         else if (stmt is DictDeclStmt dictStmt) {
             var dict = new List<KeyValuePair<string, object>>();
             foreach (var pair in dictStmt.Pairs) {
                 dict.Add(new KeyValuePair<string, object>(pair.Item1, EvaluateExpr(pair.Item2, env)));
             }
-            env.Set(dictStmt.Name, dict);
+            env.Define(dictStmt.Name, dict);
         }
-        else if (stmt is JobStmt jobStmt) env.Set(jobStmt.Name, jobStmt);
+        else if (stmt is JobStmt jobStmt) env.Define(jobStmt.Name, jobStmt);
         else if (stmt is ExprStmt exprStmt) EvaluateExpr(exprStmt.Expression, env);
     }
 
@@ -680,7 +693,7 @@ class Evaluator
                 for (int i = 0; i < job.Params.Count; i++)
                 {
                     object argVal = i < call.Args.Count ? EvaluateExpr(call.Args[i], env) : null;
-                    localEnv.Set(job.Params[i], argVal);
+                    localEnv.Define(job.Params[i], argVal);
                 }
                 try { foreach (var stmt in job.Body) ExecuteStmt(stmt, localEnv); }
                 catch (ReturnException ret) { return ret.Value; }
@@ -699,7 +712,7 @@ internal class Program
     {
         if (args.Length != 1)
         {
-            Console.WriteLine("Usage: chease.exe filename.chease");
+            Console.WriteLine("Usage: chease-v1.2.1.exe filename.chease");
             return;
         }
 
