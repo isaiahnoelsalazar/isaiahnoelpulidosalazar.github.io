@@ -1,0 +1,42 @@
+@font-face {
+            font-family: 'Google Sans';
+            src: url('https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2') format('woff2');
+        }
+        
+        :root {
+            /* Light Theme Variables */
+            --ide-bg: #ffffff;
+            --ide-surface: #f8f9fa;
+            --ide-border: #dee2e6;
+            --ide-text: #212529;
+            --ide-text-muted: #6c757d;
+            --ide-accent: #1a73e8;
+            
+            /* Override ECElements specific variables */
+            --ec-bg: var(--ide-bg);
+            --ec-surface: var(--ide-surface);
+            --ec-border: var(--ide-border);
+            --ec-text: var(--ide-text);
+            --ec-text-muted: var(--ide-text-muted);
+            --ec-accent: var(--ide-accent);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Google Sans', sans-serif;
+            background: var(--ide-bg);
+            color: var(--ide-text);
+            overflow: hidden;
+        }
+
+        /* Editor specific font bypass */
+        .monaco-editor * {
+            font-family: 'Roboto Mono', monospace !important;
+        }
+
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--ide-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ide-text-muted); }

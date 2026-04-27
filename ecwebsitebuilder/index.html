@@ -29,62 +29,15 @@
   <title>ECWebsiteBuilder</title>
   <script src="../js/ECStyleSheet.js"></script>
   <script src="../js/ECElements.js"></script>
-  <style>
-    /* Builder interactions & pseudo-states */
-    #canvas.drop-zone { min-height: 100%; }
-    .drop-zone { transition: background-color 0.2s, border-color 0.2s; }
-    
-    .drag-over {
-      background-color: rgba(26, 115, 232, 0.05) !important;
-      border: 2px dashed #1a73e8 !important;
-    }
-
-    .canvas-item {
-      position: relative;
-      border: 2px solid transparent;
-      margin-bottom: 8px;
-      padding: 4px;
-      min-height: 24px;
-      border-radius: 4px;
-      transition: border-color 0.2s;
-    }
-    .canvas-item:hover { border-color: #a5c6ff; }
-    .canvas-item.selected { border-color: #1a73e8; }
-
-    .item-controls {
-      position: absolute;
-      top: -18px;
-      right: 8px;
-      display: none;
-      background: #1a73e8;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      z-index: 1000;
-      overflow: hidden;
-    }
-    .canvas-item:hover > .item-controls,
-    .canvas-item.selected > .item-controls {
-      display: flex;
-    }
-    .control-btn {
-      border: none;
-      background: transparent;
-      color: #fff;
-      cursor: pointer;
-      padding: 4px 8px;
-      font-size: 12px;
-    }
-    .control-btn:hover { background: rgba(255,255,255,0.2); }
-
-    /* Textarea for properties */
-    .prop-textarea {
-      width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;
-      font-size: 13px; box-sizing: border-box; background: #fff; resize: vertical;
-      outline: none; transition: border-color 0.15s;
-    }
-    .prop-textarea:focus { border-color: #1a73e8; }
-  </style>
+  <link rel="stylesheet" href="index.css">
 </head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3KKEWWQ81M"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-3KKEWWQ81M');
+    </script>
 <body class="margin-0 padding-0 display-flex height-100vh overflow-hidden background-var(--ec-surface,_#f1f3f5)">
 
   <!-- Left Sidebar (Components) -->
