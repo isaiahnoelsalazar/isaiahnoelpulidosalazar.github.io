@@ -7,14 +7,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    
     steps:
       - uses: actions/checkout@v4
 
@@ -27,13 +25,56 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install build
+      
+      - name: Get Version and Changes
+        id: metadata
+        run: |
+          # 1. Get Version from pyproject.toml
+          VERSION=$(grep -m 1 "version =" py/pyproject.toml | cut -d '"' -f 2)
+          
+          # 2. Get Changes from __init__.py (looks for everything after '# changes:')
+          # This script finds the package folder and reads the __init__.py
+          CHANGES=$(python3 -c "
+          import re, pathlib
+          init_file = next(pathlib.Path('py').glob('*/__init__.py'))
+          content = init_file.read_text()
+          match = re.search(r'# changes:\s*\n((?:\s*#\s*-.*\n?)+)', content, re.IGNORECASE)
+          print(match.group(1).replace('#', '').strip() if match else 'No changes listed.')
+          ")
+
+          # Save to environment for next steps
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG_NAME=pythonbundle-v$VERSION" >> $GITHUB_ENV
+          
+          # Save multi-line changes to a special GitHub environment file
+          echo "CHANGES<<EOF" >> $GITHUB_ENV
+          echo "$CHANGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Build package
         run: |
-          cd python
-          python -m build
+          cd py
+          py -m build
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: ${{ env.TAG_NAME }}
+          body: |
+            Auto-generated release.
+
+            Version: v${{ env.VERSION }}
+            Built from latest commit in py/.
+
+            Changes:
+            ${{ env.CHANGES }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: python/dist/
+          packages-dir: py/dist/

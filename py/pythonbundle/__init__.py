@@ -7,3 +7,6 @@ from .easy_sql import EasySQL
 from .excellent_reader import get_first_column_from_all_sheets, get_first_column_from_sheet_index
 from .stackily import Stackily
 from .test import test_method
+
+# changes:
+# - initial commit
