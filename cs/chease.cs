@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-// current version - 1.2.1
+// current version - 1.3.0
 
 // changes:
-// - fix repeat block variable values not sticking after every loop iteration
+// - added set options for both arrays and dictionaries
+// - added file operations (create, read, update, delete)
 
 enum TokenType
 {
@@ -16,7 +17,8 @@ enum TokenType
     Plus, Minus, Multiply, Divide, Modulo,
     Greater, Less, GreaterEqual, LessEqual, Equal, NotEqual,
     LBracket, RBracket, Comma, Colon,
-    EOF
+    EOF,
+    Set, File, Create, Read, Update, Delete
 }
 
 class Token
@@ -69,7 +71,6 @@ class Lexer
                 string id = "";
                 while (_pos < _code.Length && char.IsLetterOrDigit(_code[_pos])) { id += _code[_pos++]; }
 
-                // --- NOTE / COMMENT LOGIC ---
                 if (id == "note")
                 {
                     int peek = _pos;
@@ -77,14 +78,12 @@ class Lexer
 
                     if (peek < _code.Length && _code[peek] == '[')
                     {
-                        // Multi-line comment block
-                        _pos = peek + 1; // skip '['
+                        _pos = peek + 1;
                         while (_pos < _code.Length && _code[_pos] != ']') _pos++;
-                        if (_pos < _code.Length) _pos++; // skip ']'
+                        if (_pos < _code.Length) _pos++;
                     }
                     else
                     {
-                        // Single-line comment
                         while (_pos < _code.Length && _code[_pos] != '\n' && _code[_pos] != '\r') _pos++;
                     }
                     continue;
@@ -110,6 +109,12 @@ class Lexer
                     "string" => new Token(TokenType.StringType, id),
                     "true" => new Token(TokenType.True, id),
                     "false" => new Token(TokenType.False, id),
+                    "set" => new Token(TokenType.Set, id),
+                    "file" => new Token(TokenType.File, id),
+                    "create" => new Token(TokenType.Create, id),
+                    "read" => new Token(TokenType.Read, id),
+                    "update" => new Token(TokenType.Update, id),
+                    "delete" => new Token(TokenType.Delete, id),
                     _ => new Token(TokenType.Identifier, id)
                 });
                 continue;
@@ -167,6 +172,13 @@ class RepeatStmt : Stmt { public bool IsForever; public Expr Count; public List<
 class IfStmt : Stmt { public Expr Condition; public List<Stmt> TrueBody; public List<Stmt> FalseBody; }
 class ArrayDeclStmt : Stmt { public TokenType Type; public string Name; public List<Expr> Elements; }
 class DictDeclStmt : Stmt { public string Name; public List<(string, Expr)> Pairs; }
+class ArraySetStmt : Stmt { public string ArrayName; public Expr Index; public Expr Value; }
+class DictSetStmt : Stmt { public string DictName; public bool IsKey; public Expr KeyOrIndex; public Expr Value; }
+
+class FileCreateStmt : Stmt { public Expr FileName; public Expr Content; }
+class FileUpdateStmt : Stmt { public Expr FileName; public Expr Content; }
+class FileDeleteStmt : Stmt { public Expr FileName; }
+class FileReadExpr : Expr { public Expr FileName; }
 
 class BinaryExpr : Expr { public Expr Left; public TokenType Op; public Expr Right; }
 class LiteralExpr : Expr { public object Value; }
@@ -283,6 +295,17 @@ class Parser
         if (Peek().Type == TokenType.Array)
         {
             var nextType = PeekNext().Type;
+            if (nextType == TokenType.Set)
+            {
+                Consume(TokenType.Array);
+                Consume(TokenType.Set);
+                string arrName = Consume(TokenType.Identifier).Text;
+                if (Peek().Type == TokenType.Comma) Consume(TokenType.Comma);
+                Expr index = ParseExpr();
+                if (Peek().Type == TokenType.Comma) Consume(TokenType.Comma);
+                Expr value = ParseExpr();
+                return new ArraySetStmt { ArrayName = arrName, Index = index, Value = value };
+            }
             if (nextType == TokenType.BooleanType || nextType == TokenType.NumberType || 
                 nextType == TokenType.DecimalType || nextType == TokenType.StringType)
             {
@@ -303,6 +326,22 @@ class Parser
         if (Peek().Type == TokenType.Dictionary)
         {
             var nextType = PeekNext().Type;
+            if (nextType == TokenType.Set)
+            {
+                Consume(TokenType.Dictionary);
+                Consume(TokenType.Set);
+                bool isKey = false;
+                if (Peek().Type == TokenType.Identifier && Peek().Text == "key") { Consume(TokenType.Identifier); isKey = true; }
+                else if (Peek().Type == TokenType.Identifier && Peek().Text == "index") { Consume(TokenType.Identifier); isKey = false; }
+                else throw new Exception("Expected 'key' or 'index' after 'dictionary set'.");
+                
+                string dictName = Consume(TokenType.Identifier).Text;
+                if (Peek().Type == TokenType.Comma) Consume(TokenType.Comma);
+                Expr keyOrIndex = ParseExpr();
+                if (Peek().Type == TokenType.Comma) Consume(TokenType.Comma);
+                Expr value = ParseExpr();
+                return new DictSetStmt { DictName = dictName, KeyOrIndex = keyOrIndex, IsKey = isKey, Value = value };
+            }
             if (nextType == TokenType.Identifier)
             {
                 Consume(TokenType.Dictionary);
@@ -322,6 +361,38 @@ class Parser
                     }
                 }
                 return new DictDeclStmt { Name = name, Pairs = pairs };
+            }
+        }
+        if (Peek().Type == TokenType.File)
+        {
+            var nextType = PeekNext().Type;
+            if (nextType == TokenType.Create || nextType == TokenType.Update || nextType == TokenType.Delete)
+            {
+                Consume(TokenType.File);
+                if (Peek().Type == TokenType.Create)
+                {
+                    Consume(TokenType.Create);
+                    Expr fileName = ParseExpr();
+                    Consume(TokenType.LBracket);
+                    Expr content = ParseExpr();
+                    Consume(TokenType.RBracket);
+                    return new FileCreateStmt { FileName = fileName, Content = content };
+                }
+                if (Peek().Type == TokenType.Update)
+                {
+                    Consume(TokenType.Update);
+                    Expr fileName = ParseExpr();
+                    Consume(TokenType.LBracket);
+                    Expr content = ParseExpr();
+                    Consume(TokenType.RBracket);
+                    return new FileUpdateStmt { FileName = fileName, Content = content };
+                }
+                if (Peek().Type == TokenType.Delete)
+                {
+                    Consume(TokenType.Delete);
+                    Expr fileName = ParseExpr();
+                    return new FileDeleteStmt { FileName = fileName };
+                }
             }
         }
         if (Peek().Type == TokenType.Job)
@@ -383,7 +454,7 @@ class Parser
         return type == TokenType.Identifier || type == TokenType.NumberValue ||
                type == TokenType.DecimalValue || type == TokenType.StringValue ||
                type == TokenType.Get || type == TokenType.True || type == TokenType.False ||
-               type == TokenType.Array || type == TokenType.Dictionary;
+               type == TokenType.Array || type == TokenType.Dictionary || type == TokenType.File;
     }
 
     private Expr ParsePrimary()
@@ -408,6 +479,13 @@ class Parser
         {
             Consume(TokenType.Get);
             return new GetExpr();
+        }
+        if (Peek().Type == TokenType.File)
+        {
+            Consume(TokenType.File);
+            Consume(TokenType.Read);
+            Expr fileName = ParseExpr();
+            return new FileReadExpr { FileName = fileName };
         }
         if (Peek().Type == TokenType.Array)
         {
@@ -581,12 +659,72 @@ class Evaluator
             }
             env.Define(arrStmt.Name, list);
         }
+        else if (stmt is ArraySetStmt arrSet) {
+            object arrObj = env.Get(arrSet.ArrayName);
+            if (arrObj is List<object> list) {
+                int index = Convert.ToInt32(EvaluateExpr(arrSet.Index, env));
+                object val = EvaluateExpr(arrSet.Value, env);
+                if (index >= 0 && index < list.Count) {
+                    list[index] = val;
+                } else {
+                    throw new Exception($"Runtime Error: Index {index} out of bounds for array '{arrSet.ArrayName}'.");
+                }
+            } else {
+                throw new Exception($"Runtime Error: '{arrSet.ArrayName}' is not an array.");
+            }
+        }
         else if (stmt is DictDeclStmt dictStmt) {
             var dict = new List<KeyValuePair<string, object>>();
             foreach (var pair in dictStmt.Pairs) {
                 dict.Add(new KeyValuePair<string, object>(pair.Item1, EvaluateExpr(pair.Item2, env)));
             }
             env.Define(dictStmt.Name, dict);
+        }
+        else if (stmt is DictSetStmt dictSet) {
+            object dictObj = env.Get(dictSet.DictName);
+            if (dictObj is List<KeyValuePair<string, object>> dict) {
+                object val = EvaluateExpr(dictSet.Value, env);
+                if (dictSet.IsKey) {
+                    string key = Convert.ToString(EvaluateExpr(dictSet.KeyOrIndex, env));
+                    int foundIndex = -1;
+                    for (int i = 0; i < dict.Count; i++) {
+                        if (dict[i].Key == key) { foundIndex = i; break; }
+                    }
+                    if (foundIndex != -1) {
+                        dict[foundIndex] = new KeyValuePair<string, object>(key, val);
+                    } else {
+                        dict.Add(new KeyValuePair<string, object>(key, val));
+                    }
+                } else {
+                    int index = Convert.ToInt32(EvaluateExpr(dictSet.KeyOrIndex, env));
+                    if (index >= 0 && index < dict.Count) {
+                        string key = dict[index].Key;
+                        dict[index] = new KeyValuePair<string, object>(key, val);
+                    } else {
+                        throw new Exception($"Runtime Error: Index {index} out of bounds for dictionary '{dictSet.DictName}'.");
+                    }
+                }
+            } else {
+                throw new Exception($"Runtime Error: '{dictSet.DictName}' is not a dictionary.");
+            }
+        }
+        else if (stmt is FileCreateStmt fileCreate) {
+            string fileName = Convert.ToString(EvaluateExpr(fileCreate.FileName, env));
+            string content = Convert.ToString(EvaluateExpr(fileCreate.Content, env));
+            File.WriteAllText(fileName, content);
+        }
+        else if (stmt is FileUpdateStmt fileUpdate) {
+            string fileName = Convert.ToString(EvaluateExpr(fileUpdate.FileName, env));
+            string content = Convert.ToString(EvaluateExpr(fileUpdate.Content, env));
+            File.AppendAllText(fileName, content);
+        }
+        else if (stmt is FileDeleteStmt fileDelete) {
+            string fileName = Convert.ToString(EvaluateExpr(fileDelete.FileName, env));
+            if (File.Exists(fileName)) {
+                File.Delete(fileName);
+            } else {
+                throw new Exception($"Runtime Error: File '{fileName}' not found to delete.");
+            }
         }
         else if (stmt is JobStmt jobStmt) env.Define(jobStmt.Name, jobStmt);
         else if (stmt is ExprStmt exprStmt) EvaluateExpr(exprStmt.Expression, env);
@@ -615,6 +753,15 @@ class Evaluator
             if (double.TryParse(input, NumberStyles.Any, CultureInfo.InvariantCulture, out double d)) return d;
             if (bool.TryParse(input, out bool b)) return b;
             return input;
+        }
+        if (expr is FileReadExpr fileRead) 
+        {
+            string fileName = Convert.ToString(EvaluateExpr(fileRead.FileName, env));
+            if (File.Exists(fileName)) {
+                return File.ReadAllText(fileName);
+            } else {
+                throw new Exception($"Runtime Error: File '{fileName}' not found to read.");
+            }
         }
         if (expr is ArrayGetExpr arrGet) {
             object arrObj = env.Get(arrGet.ArrayName);
@@ -712,7 +859,7 @@ internal class Program
     {
         if (args.Length != 1)
         {
-            Console.WriteLine("Usage: chease-v1.2.1.exe filename.chease");
+            Console.WriteLine("Usage: chease-v1.3.0.exe filename.chease");
             return;
         }
 
