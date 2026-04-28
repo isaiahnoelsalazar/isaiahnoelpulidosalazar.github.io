@@ -6,12 +6,12 @@ on:
       - 'android/**'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./android 
 
     steps:
     - name: Checkout Code
@@ -25,16 +25,38 @@ jobs:
         cache: gradle
 
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: cd android && chmod +x gradlew
 
     - name: Run Tests
-      run: ./gradlew test
+      run: cd android && ./gradlew test
 
     - name: Build AAR file
-      run: ./gradlew assembleRelease
+      run: cd android && ./gradlew assembleRelease
 
-    - name: Upload AAR Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: androiddependency-release-aar
-        path: android/androiddependency/build/outputs/aar/androiddependency-release.aar
+    - name: Extract Version from build.gradle
+      id: get_version
+      run: |
+        # Scans build.gradle for "version = 'X.X.X'" and extracts just the number inside the quotes
+        VERSION=$(grep -oP "version\s*=\s*['\"]\K[^'\"]+" android/androiddependency/build.gradle | head -n 1)
+        
+        # Save it to the environment variables so the next step can use it
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Extracted Version: $VERSION"
+
+    - name: Create Release and Upload AAR (Releases Page)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Check if the tag already exists so the workflow doesn't fail on multiple pushes to the same version
+        if gh release view "androiddependency-v${{ env.VERSION }}" > /dev/null 2>&1; then
+          echo "Release androiddependency-v${{ env.VERSION }} already exists. Skipping release creation."
+        else
+          echo "Creating new release androiddependency-v${{ env.VERSION }}"
+          
+          # Creates the Tag, the Release page, and uploads the .aar file to it!
+          gh release create "androiddependency-v${{ env.VERSION }}" \
+            android/androiddependency/build/outputs/aar/androiddependency-release.aar \
+            --title "androiddependency-v${{ env.VERSION }}" \
+            --notes "Automated release of androiddependency version ${{ env.VERSION }}" \
+            --target ${{ github.sha }}
+        fi
