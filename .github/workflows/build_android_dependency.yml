@@ -33,17 +33,17 @@ jobs:
     - name: Build AAR file
       run: cd android && ./gradlew assembleRelease
 
-    - name: Extract Version from build.gradle
-      id: get_version
+    - name: Extract Version and Changes
+      id: metadata
       run: |
-        # Scans build.gradle for "version = 'X.X.X'" and extracts just the number inside the quotes
         VERSION=$(grep -oP "version\s*=\s*['\"]\K[^'\"]+" android/androiddependency/build.gradle | head -n 1)
-        
-        # Save it to the environment variables so the next step can use it
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "Extracted Version: $VERSION"
+        
+        echo "CHANGES<<EOF" >> $GITHUB_ENV
+        grep "^\s*//\s*-" android/androiddependency/build.gradle | sed 's/^\s*\/\/\s*//' >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
-    - name: Create Release and Upload AAR (Releases Page)
+    - name: Create Release and Upload AAR
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -56,7 +56,10 @@ jobs:
           RELEASE_NOTES="Auto-generated release.
 
           Version: v${{ env.VERSION }}
-          Built from latest commit in android/."
+          Built from latest commit in android/.
+          
+          Changes:
+          ${{ env.CHANGES }}"
           
           # Creates the Tag, the Release page, and uploads the .aar file to it!
           gh release create "androiddependency-v${{ env.VERSION }}" \

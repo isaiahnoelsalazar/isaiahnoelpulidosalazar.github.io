@@ -40,6 +40,8 @@ afterEvaluate {
                 groupId = 'com.github.isaiahnoelpulidosalazar'
                 artifactId = 'androiddependency'
                 version = '1.0.0'
+                // changes:
+                // - no changes
             }
         }
     }
