@@ -9,4 +9,9 @@ from .stackily import Stackily
 from .test import test_method
 
 # changes:
-# - initial commit
+# - rework excellent_reader
+# - rework check
+# - rework sort
+# - rework cipher
+# - rework convert
+# - add simple_file_handler
