@@ -21,6 +21,61 @@ const dbConfig = {
     options: { encrypt: true, trustServerCertificate: true }
 };
 
+function generateKeywords(text) {
+  let cleanText = text.toLowerCase().replace(/['’]s\b/g, '');
+
+  const stopwords = new Set([
+    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 
+    'for', 'of', 'with', 'by', 'as', 'is', 'are', 'was', 'were', 'it'
+  ]);
+  const isStopword = (word) => stopwords.has(word);
+
+  let keywords = new Set();
+
+  const clauses = cleanText.split(/[:;,|]/);
+
+  clauses.forEach(clause => {
+    let words = clause.replace(/[^\w\s-]/g, '').trim().split(/\s+/);
+    words = words.filter(w => w.length > 0);
+    if (words.length === 0) return;
+
+    let start = 0, end = words.length - 1;
+    while (start < words.length && isStopword(words[start])) start++;
+    while (end >= start && isStopword(words[end])) end--;
+    
+    if (start <= end) {
+      keywords.add(words.slice(start, end + 1).join(' '));
+    }
+
+    for (let n = 1; n <= 5; n++) {
+      for (let i = 0; i <= words.length - n; i++) {
+        const ngram = words.slice(i, i + n);
+        if (!isStopword(ngram[0]) && !isStopword(ngram[ngram.length - 1])) {
+          keywords.add(ngram.join(' '));
+        }
+      }
+    }
+  });
+
+  const currentKeywords = Array.from(keywords);
+  currentKeywords.forEach(kw => {
+    if (kw.includes('-')) {
+      const spaceVersionStr = kw.replace(/-/g, ' ');
+      keywords.add(spaceVersionStr);
+
+      const spaceVersionArr = spaceVersionStr.split(' ');
+      if (spaceVersionArr.length > 1) {
+        keywords.add(spaceVersionArr.slice(0, -1).join(' '));
+        keywords.add(spaceVersionArr.slice(1).join(' '));
+      }
+    }
+  });
+
+  return Array.from(keywords)
+    .filter(kw => kw.length > 2)
+    .sort((a, b) => b.length - a.length);
+}
+
 async function initDB() {
     try {
         await sql.connect(dbConfig);
@@ -158,7 +213,7 @@ app.post('/api/create-post', requireAuth, requireCanPost, async (req, res) => {
 
         const publishDate = date.toLocaleString('en-US', dateOptions);
 
-        const postHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><script src="../js/ECStyleSheet.js"></script><script src="../js/ECElements.js"></script></head><script async src="https://www.googletagmanager.com/gtag/js?id=G-3KKEWWQ81M"></script><script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-3KKEWWQ81M');</script><body class="background-var(--ec-surface,_#f8f9fa) padding-16px margin-0"><div class="maxWidth-800px margin-auto background-var(--ec-bg,_#fff) padding-32px borderRadius-12px boxShadow-0_4px_12px_rgba(0,0,0,0.05) border-1px_solid_var(--ec-border,_#dee2e6)"><a href="/posts/" class="color-var(--ec-text-muted,_#6c757d) textDecoration-none hover:color-var(--ec-accent,_#1a73e8) fontSize-14px fontWeight-500">← Back to Posts</a><h1 class="color-var(--ec-text,_#212529) marginTop-24px marginBottom-8px fontSize-32px">${title}</h1><p class="color-var(--ec-text-muted,_#6c757d) fontSize-14px margin-0">Published on ${publishDate} by ${authorUsername}</p><hr class="borderTop-1px_solid_var(--ec-border,_#dee2e6) borderBottom-none margin-24px_0"><div class="color-var(--ec-text,_#212529) fontSize-16px lineHeight-1.6">${content.replace(/\n/g, '<br>')}</div></div></body></html>`;
+        const postHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="${title}"><meta name="keywords" content="${generateKeywords(title).join(', ')}"><meta name="author" content="${authorUsername}"><title>${title}</title><script src="../js/ECStyleSheet.js"></script><script src="../js/ECElements.js"></script></head><script async src="https://www.googletagmanager.com/gtag/js?id=G-3KKEWWQ81M"></script><script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-3KKEWWQ81M');</script><body class="background-var(--ec-surface,_#f8f9fa) padding-16px margin-0"><div class="maxWidth-800px margin-auto background-var(--ec-bg,_#fff) padding-32px borderRadius-12px boxShadow-0_4px_12px_rgba(0,0,0,0.05) border-1px_solid_var(--ec-border,_#dee2e6)"><a href="/posts/" class="color-var(--ec-text-muted,_#6c757d) textDecoration-none hover:color-var(--ec-accent,_#1a73e8) fontSize-14px fontWeight-500">← Back to Posts</a><h1 class="color-var(--ec-text,_#212529) marginTop-24px marginBottom-8px fontSize-32px">${title}</h1><p class="color-var(--ec-text-muted,_#6c757d) fontSize-14px margin-0">Published on ${publishDate} by ${authorUsername}</p><hr class="borderTop-1px_solid_var(--ec-border,_#dee2e6) borderBottom-none margin-24px_0"><div class="color-var(--ec-text,_#212529) fontSize-16px lineHeight-1.6">${content.replace(/\n/g, '<br>')}</div></div></body></html>`;
 
         await octokit.repos.createOrUpdateFileContents({ owner, repo, path: `posts/${slug}.html`, message: `Add new post: ${title} by ${authorUsername}`, content: Buffer.from(postHtml).toString('base64'), branch });
 
