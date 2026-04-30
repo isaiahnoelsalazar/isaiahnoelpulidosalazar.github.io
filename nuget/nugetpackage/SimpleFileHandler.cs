@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace nugetpackage;
+
 public class SimpleFileHandler
 {
     public static void Write(string FilePath, string Content)

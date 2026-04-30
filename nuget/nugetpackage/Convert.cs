@@ -1,6 +1,7 @@
 ﻿using System.Text;
 
 namespace nugetpackage;
+
 public class Convert
 {
     public static string Reverse(string str)
@@ -28,7 +29,7 @@ public class Convert
     {
         return Encoding.UTF8.GetString(array);
     }
-    // I have not tested the functions below. Proceed with caution.
+
     public static string FromHex(string str)
     {
         StringBuilder sb = new StringBuilder();
