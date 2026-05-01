@@ -47,9 +47,9 @@ jobs:
 
       - name: Build and Pack
         run: |
-          dotnet restore nuget/nugetpackage.slnx
-          dotnet build nuget/nugetpackage.slnx --configuration Release --no-restore
-          dotnet pack nuget/nugetpackage.slnx --configuration Release --no-build --output nuget/artifacts
+          dotnet restore nuget/nugetpackage/nugetpackage.slnx
+          dotnet build nuget/nugetpackage/nugetpackage.slnx --configuration Release --no-restore
+          dotnet pack nuget/nugetpackage/nugetpackage.slnx --configuration Release --no-build --output nuget/artifacts
 
       - name: Check if tag exists
         id: tag_check
