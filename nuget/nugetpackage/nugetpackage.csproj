@@ -4,6 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>com.github.isaiahnoelpulidosalazar.nugetpackage</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Isaiah Noel Pulido Salazar</Authors>
   </PropertyGroup>
 
 </Project>

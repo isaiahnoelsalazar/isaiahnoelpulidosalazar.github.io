@@ -1,0 +1,86 @@
+name: Build NuGet Package
+
+on:
+  push:
+    paths:
+      - 'nuget/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Get Version and Changes
+        id: metadata
+        run: |
+          VERSION=$(grep -m 1 "<Version>" nuget/nugetpackage/*.csproj | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
+
+          CHANGES=$(awk '
+            BEGIN { found=0 }
+            /\/\/[[:space:]]*changes:/ { found=1; next }
+            found && /\/\/[[:space:]]*-/ {
+              sub(/\/\/[[:space:]]*/, "")
+              print
+            }
+            found && !/\/\/[[:space:]]*-/ { exit }
+          ' nuget/nugetpackage/Class1.cs)
+
+          if [ -z "$CHANGES" ]; then
+            CHANGES="- No changes specified."
+          fi
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG_NAME=nugetpackage-v$VERSION" >> $GITHUB_ENV
+
+          echo "CHANGES<<EOF" >> $GITHUB_ENV
+          echo "$CHANGES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Build and Pack
+        run: |
+          dotnet restore nuget/nugetpackage.slnx
+          dotnet build nuget/nugetpackage.slnx --configuration Release --no-restore
+          dotnet pack nuget/nugetpackage.slnx --configuration Release --no-build --output nuget/artifacts
+
+      - name: Check if tag exists
+        id: tag_check
+        run: |
+          if git ls-remote --tags origin | grep -q "refs/tags/${TAG_NAME}$"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: ${{ env.TAG_NAME }}
+          body: |
+            Auto-generated release.
+
+            Version: v${{ env.VERSION }}
+            Built from latest commit in nuget/.
+
+            Changes:
+            ${{ env.CHANGES }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish package
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          dotnet nuget push "nuget/artifacts/*.nupkg" \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
