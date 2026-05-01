@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageId>nugetpackage</PackageId>
+    <PackageId>com.github.isaiahnoelpulidosalazar.nugetpackage</PackageId>
     <Version>1.0.1</Version>
     <Authors>Isaiah Noel Pulido Salazar</Authors>
   </PropertyGroup>
