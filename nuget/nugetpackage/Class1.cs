@@ -3,5 +3,5 @@
 public class Class1
 {
     // changes:
-    // - change package name
+    // - revert package name
 }
