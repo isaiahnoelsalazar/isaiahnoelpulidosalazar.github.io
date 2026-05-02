@@ -80,9 +80,9 @@ async function initDB() {
     try {
         await sql.connect(dbConfig);
         await sql.query(`
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Users' and xtype='U')
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='PostsUsers' and xtype='U')
             BEGIN
-                CREATE TABLE Users (
+                CREATE TABLE PostsUsers (
                     Id INT IDENTITY(1,1) PRIMARY KEY,
                     Username NVARCHAR(50) UNIQUE NOT NULL,
                     PasswordHash NVARCHAR(255) NOT NULL,
@@ -92,13 +92,13 @@ async function initDB() {
             END
             ELSE
             BEGIN
-                IF COL_LENGTH('Users', 'IsAdmin') IS NULL
-                    ALTER TABLE Users ADD IsAdmin BIT NOT NULL DEFAULT 0;
-                IF COL_LENGTH('Users', 'CanPost') IS NULL
-                    ALTER TABLE Users ADD CanPost BIT NOT NULL DEFAULT 0;
+                IF COL_LENGTH('PostsUsers', 'IsAdmin') IS NULL
+                    ALTER TABLE PostsUsers ADD IsAdmin BIT NOT NULL DEFAULT 0;
+                IF COL_LENGTH('PostsUsers', 'CanPost') IS NULL
+                    ALTER TABLE PostsUsers ADD CanPost BIT NOT NULL DEFAULT 0;
             END
         `);
-        console.log("Database connected & Users table ready with permissions.");
+        console.log("Database connected & PostsUsers table ready with permissions.");
     } catch (err) {
         console.error("Database Connection Failed:", err.message);
     }
@@ -112,7 +112,7 @@ app.post('/api/register', async (req, res) => {
     try {
         const pool = await sql.connect(dbConfig);
         
-        const checkUser = await pool.request().input('username', sql.NVarChar, username).query('SELECT Id FROM Users WHERE Username = @username');
+        const checkUser = await pool.request().input('username', sql.NVarChar, username).query('SELECT Id FROM PostsUsers WHERE Username = @username');
         if (checkUser.recordset.length > 0) return res.status(400).json({ success: false, error: "Username already taken." });
 
         const hash = await bcrypt.hash(password, 10);
@@ -122,7 +122,7 @@ app.post('/api/register', async (req, res) => {
             .input('hash', sql.NVarChar, hash)
             .input('isAdmin', sql.Bit, 0)
             .input('canPost', sql.Bit, 0)
-            .query('INSERT INTO Users (Username, PasswordHash, IsAdmin, CanPost) VALUES (@username, @hash, @isAdmin, @canPost)');
+            .query('INSERT INTO PostsUsers (Username, PasswordHash, IsAdmin, CanPost) VALUES (@username, @hash, @isAdmin, @canPost)');
             
         res.json({ success: true, message: "Registered successfully! You can now log in." });
     } catch (err) {
@@ -135,7 +135,7 @@ app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
         const pool = await sql.connect(dbConfig);
-        const result = await pool.request().input('username', sql.NVarChar, username).query('SELECT * FROM Users WHERE Username = @username');
+        const result = await pool.request().input('username', sql.NVarChar, username).query('SELECT * FROM PostsUsers WHERE Username = @username');
         
         if (result.recordset.length === 0) return res.status(401).json({ success: false, error: "Invalid username or password." });
 
@@ -173,7 +173,7 @@ const requireCanPost = (req, res, next) => {
 app.get('/api/users', requireAuth, requireAdmin, async (req, res) => {
     try {
         const pool = await sql.connect(dbConfig);
-        const result = await pool.request().query('SELECT Id, Username, IsAdmin, CanPost FROM Users ORDER BY Id ASC');
+        const result = await pool.request().query('SELECT Id, Username, IsAdmin, CanPost FROM PostsUsers ORDER BY Id ASC');
         res.json({ success: true, users: result.recordset });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
@@ -186,7 +186,7 @@ app.put('/api/users/:id/permissions', requireAuth, requireAdmin, async (req, res
             .input('id', sql.Int, req.params.id)
             .input('canPost', sql.Bit, canPost)
             .input('isAdmin', sql.Bit, isAdmin)
-            .query('UPDATE Users SET CanPost = @canPost, IsAdmin = @isAdmin WHERE Id = @id');
+            .query('UPDATE PostsUsers SET CanPost = @canPost, IsAdmin = @isAdmin WHERE Id = @id');
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
