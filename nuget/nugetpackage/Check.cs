@@ -11,26 +11,32 @@ public class Check
         static ArrayList validDomainExtensions = new ArrayList();
         static ArrayList validDomains = new ArrayList();
         static bool shouldUseFullDomain = false;
+
         public static void AddValidDomainName(string str)
         {
             validDomainNames.Add(str);
         }
+
         public static void AddValidDomainExtension(string str)
         {
             validDomainExtensions.Add(str);
         }
+        
         public static void AddValidDomain(string str)
         {
             validDomains.Add(str);
         }
+
         public static void ShouldUseFullDomain()
         {
             shouldUseFullDomain = true;
         }
+
         public static void ShouldUseFullDomain(bool boolean)
         {
             shouldUseFullDomain = boolean;
         }
+
         public static bool IsValid(string str)
         {
             if (shouldUseFullDomain)
@@ -44,7 +50,8 @@ public class Check
                 {
                     return false;
                 }
-            } else
+            }
+            else
             {
                 try
                 {
@@ -60,11 +67,13 @@ public class Check
             }
         }
     }
+
     public static bool IsAValidPhilippineMobileNumber(string str)
     {
         string pattern = @"^(?:09|\+639|639)\d{9}$";
         return Regex.IsMatch(Regex.Replace(str, @"[\s\-\(\)]", ""), pattern);
     }
+
     public static bool IsAllNumbers(string str)
     {
         bool value = true;
@@ -78,6 +87,7 @@ public class Check
         }
         return value;
     }
+
     public static bool HasNumbers(string str)
     {
         string numbers = "0123456789";
@@ -93,6 +103,7 @@ public class Check
         }
         return false;
     }
+
     public static bool HasSymbols(string str)
     {
         string symbols = "~`!@#$%^&*()_+-=[]{}\\|'\";:,.<>/?";
@@ -108,6 +119,7 @@ public class Check
         }
         return false;
     }
+
     public static bool HasSpaces(string str)
     {
         foreach (char a in str)
@@ -118,5 +130,25 @@ public class Check
             }
         }
         return false;
+    }
+
+    public static double HowManySecondsLeft(DateTime now, DateTime until)
+    {
+        return (until - now).TotalSeconds;
+    }
+
+    public static double HowManyMinutesLeft(DateTime now, DateTime until)
+    {
+        return (until - now).TotalMinutes;
+    }
+
+    public static double HowManyHoursLeft(DateTime now, DateTime until)
+    {
+        return (until - now).TotalHours;
+    }
+
+    public static double HowManyDaysLeft(DateTime now, DateTime until)
+    {
+        return (until - now).TotalDays;
     }
 }

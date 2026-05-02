@@ -1,37 +1,5 @@
-/**
- * ECStyleSheet
- * A dynamic, utility-first CSS generator that creates rules on-the-fly based on HTML class names.
- *
- * Usage:
- * Simply include this script in your project. It automatically initializes on 
- * DOMContentLoaded and uses a MutationObserver to style dynamically added elements.
- *
- * Core Syntax:
- *   [property]-[value]            → e.g., paddingTop-8px
- *   [pseudo]:[prop]-[val]         → e.g., hover:color-red
- *   tablet:[prop]-[val]           → e.g., tablet:margin-16px  (Applies at ≤1024px)
- *   tablet:[pseudo]:[prop]-[val]  → e.g., tablet:focus:border-1px_solid_blue
- *   mobile:[prop]-[val]           → e.g., mobile:fontSize-16px  (Applies at ≤768px)
- *   mobile:[pseudo]:[prop]-[val]  → e.g., mobile:hover:color-blue
- *
- * Handling Spaces:
- *   For CSS values that require spaces, replace the spaces with underscores (_):
- *   border-1px_solid_black        → generates: `border: 1px solid black;`
- *
- * Custom Macros:
- *   The script also includes shorthand macros for common UI patterns. 
- *   These fully support responsive and pseudo-class prefixes (e.g., `mobile:ecgrid-1x4`).
- * 
- *   - eccard                      → Generates a standard card container styling 
- *                                   (background, border, 12px radius, hidden overflow).
- *   - ecgrid-{C}x{R}              → Generates a CSS grid with {C} columns and {R} rows.
- *                                   (e.g., `ecgrid-3x2` creates a 3-column, 2-row grid).
- */
-
 (function () {
   "use strict";
-
-  /* ─── Constants ─────────────────────────────────────────────────────── */
 
   var MOBILE_BREAKPOINT = 768;
   var TABLET_BREAKPOINT = 1024;
@@ -40,10 +8,7 @@
   var IS_FONT_SET = false;
   var IS_BORDER_BOX_SET = false;
 
-  /* ─── CSS property name map (camelCase → kebab-case) ────────────────── */
-
   var propertyMap = {
-    // Box model
     padding: "padding",
     paddingTop: "padding-top",
     paddingRight: "padding-right",
@@ -65,7 +30,6 @@
     overflowX: "overflow-x",
     overflowY: "overflow-y",
 
-    // Display & layout
     display: "display",
     visibility: "visibility",
     opacity: "opacity",
@@ -78,7 +42,6 @@
     float: "float",
     clear: "clear",
 
-    // Flexbox
     flexDirection: "flex-direction",
     flexWrap: "flex-wrap",
     flexFlow: "flex-flow",
@@ -95,7 +58,6 @@
     rowGap: "row-gap",
     columnGap: "column-gap",
 
-    // Grid
     gridTemplateColumns: "grid-template-columns",
     gridTemplateRows: "grid-template-rows",
     gridColumn: "grid-column",
@@ -103,7 +65,6 @@
     gridArea: "grid-area",
     gridGap: "grid-gap",
 
-    // Typography
     fontSize: "font-size",
     fontWeight: "font-weight",
     fontFamily: "font-family",
@@ -120,7 +81,6 @@
     wordWrap: "word-wrap",
     color: "color",
 
-    // Background
     background: "background",
     backgroundColor: "background-color",
     backgroundImage: "background-image",
@@ -128,7 +88,6 @@
     backgroundPosition: "background-position",
     backgroundRepeat: "background-repeat",
 
-    // Border
     border: "border",
     borderTop: "border-top",
     borderRight: "border-right",
@@ -149,7 +108,6 @@
     outlineOffset: "outline-offset",
     boxShadow: "box-shadow",
 
-    // Transform & animation
     transform: "transform",
     transformOrigin: "transform-origin",
     transition: "transition",
@@ -158,13 +116,11 @@
     animationTimingFunction: "animation-timing-function",
     animationDelay: "animation-delay",
 
-    // Cursor & interaction
     cursor: "cursor",
     pointerEvents: "pointer-events",
     userSelect: "user-select",
     resize: "resize",
 
-    // Misc
     objectFit: "object-fit",
     objectPosition: "object-position",
     listStyle: "list-style",
@@ -173,10 +129,8 @@
     verticalAlign: "vertical-align",
     tableLayout: "table-layout",
     borderCollapse: "border-collapse",
-    borderSpacing: "border-spacing",
+    borderSpacing: "border-spacing"
   };
-
-  /* ─── Utilities ──────────────────────────────────────────────────────── */
 
   function escapeClassName(name) {
     return name.replace(/[:\.\[\]\/!@#$%^&*()+=,<>?;'"{}|~`\\]/g, function (c) {
@@ -198,11 +152,8 @@
     if (propertyMap[rawProp]) {
       return propertyMap[rawProp];
     }
-    // Fallback: convert camelCase to kebab-case automatically
     return camelToKebab(rawProp);
   }
-
-  /* ─── Class name parser ──────────────────────────────────────────────── */
 
   function parseClassName(token) {
     var parts = token.split(":");
@@ -236,11 +187,10 @@
       }
     }
 
-    if (!declaration) return null;
+    if (!declaration) {
+      return null;
+    }
 
-    // --- NEW: Custom Macros ---
-    
-    // 1. Basic Card Container
     if (declaration === "eccard") {
       return {
         className: token,
@@ -251,7 +201,6 @@
       };
     }
 
-    // 2. Grid NxN (e.g., ecgrid-3x2)
     var gridMatch = declaration.match(/^ecgrid-(\d+)x(\d+)$/);
     if (gridMatch) {
       return {
@@ -263,7 +212,6 @@
       };
     }
 
-    // 3. Bounce animation (e.g., ecbounce-3)
     var bounceMatch = declaration.match(/^ecbounce-(\d+)$/);
     if (bounceMatch) {
       return {
@@ -279,14 +227,17 @@
       };
     }
 
-    // --- Standard property-value parser ---
     var dashIndex = declaration.search(/(?<=[a-zA-Z])-/);
-    if (dashIndex === -1) return null;
+    if (dashIndex === -1) {
+      return null;
+    }
 
     var rawProp = declaration.slice(0, dashIndex);
     var rawValue = declaration.slice(dashIndex + 1);
 
-    if (!rawProp || !rawValue) return null;
+    if (!rawProp || !rawValue) {
+      return null;
+    }
 
     var cssProperty = resolveProperty(rawProp);
     var cssValue = underscoresToSpaces(rawValue);
@@ -301,8 +252,6 @@
     };
   }
 
-  /* ─── Rule generator ─────────────────────────────────────────────────── */
-
   function buildCSSRule(descriptor) {
     var selector = "." + escapeClassName(descriptor.className);
 
@@ -310,7 +259,6 @@
       selector = selector + ":" + descriptor.pseudoClass;
     }
 
-    // Use cssText if provided by a macro, otherwise use standard property + value
     var declaration = descriptor.cssText 
       ? descriptor.cssText 
       : (descriptor.cssProperty + ": " + descriptor.cssValue + ";");
@@ -370,13 +318,13 @@
     return selector + " { " + declaration + " }";
   }
 
-  /* ─── Stylesheet manager ─────────────────────────────────────────────── */
-
   var generatedRules = {};
   var styleTag = null;
 
   function getStyleTag() {
-    if (styleTag) return styleTag;
+    if (styleTag) {
+      return styleTag;
+    }
     styleTag = document.getElementById(STYLE_TAG_ID);
     if (!styleTag) {
       styleTag = document.createElement("style");
@@ -388,7 +336,9 @@
 
   function injectRule(descriptor) {
     var key = descriptor.className;
-    if (generatedRules[key]) return;
+    if (generatedRules[key]) {
+      return;
+    }
 
     var rule = buildCSSRule(descriptor);
     generatedRules[key] = rule;
@@ -397,10 +347,10 @@
     tag.textContent += "\n" + rule;
   }
 
-  /* ─── DOM scanner ────────────────────────────────────────────────────── */
-
   function processElement(element) {
-    if (!element.classList) return;
+    if (!element.classList) {
+      return;
+    }
     element.classList.forEach(function (token) {
       var descriptor = parseClassName(token);
       if (descriptor) {
@@ -411,14 +361,12 @@
 
   function scanDOM() {
     if (!IS_FONT_SET) {
-      // Set a default font-family for better aesthetics
       var fontRule = "* { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; }";
       generatedRules["global-font"] = fontRule;
       getStyleTag().textContent += "\n" + fontRule;
       IS_FONT_SET = true;
     }
     if (!IS_BORDER_BOX_SET) {
-      // Ensure all elements use border-box for more intuitive sizing
       var globalRule = "* { box-sizing: border-box; }";
       generatedRules["global-border-box"] = globalRule;
       getStyleTag().textContent += "\n" + globalRule;
@@ -431,21 +379,18 @@
     });
   }
 
-  /* ─── MutationObserver ───────────────────────────────────────────────── */
-
   function startObserver() {
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
         mutation.addedNodes.forEach(function (node) {
-          if (node.nodeType !== 1) return;
+          if (node.nodeType !== 1) {
+            return;
+          }
           processElement(node);
           node.querySelectorAll("*").forEach(processElement);
         });
 
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
+        if (mutation.type === "attributes" && mutation.attributeName === "class") {
           processElement(mutation.target);
         }
       });
@@ -459,47 +404,20 @@
     });
   }
 
-  /* ─── Public API ─────────────────────────────────────────────────────── */
-
   window.ECStyleSheet = {
-    /**
-     * Manually process a class name and inject its CSS rule.
-     * Useful for dynamically assigned classes added via JS.
-     *
-     * @param {string} className
-     */
     process: function (className) {
       var descriptor = parseClassName(className);
       if (descriptor) injectRule(descriptor);
     },
-
-    /**
-     * Process an array of class names.
-     * @param {string[]} classNames
-     */
     processAll: function (classNames) {
       classNames.forEach(this.process.bind(this));
     },
-
-    /**
-     * Re-scan the entire DOM for new class names.
-     */
     scan: scanDOM,
-
-    /**
-     * Returns all generated CSS rules as a plain object { className: ruleString }.
-     */
     getRules: function () {
       return Object.assign({}, generatedRules);
     },
-
-    /**
-     * Returns the injected <style> tag element.
-     */
-    getStyleTag: getStyleTag,
+    getStyleTag: getStyleTag
   };
-
-  /* ─── Boot ───────────────────────────────────────────────────────────── */
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {

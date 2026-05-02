@@ -35,7 +35,7 @@ jobs:
               print
             }
             found && !/\/\/[[:space:]]*-/ { exit }
-          ' nuget/nugetpackage/Class1.cs)
+          ' nuget/nugetpackage/Changes.cs)
 
           if [ -z "$CHANGES" ]; then
             CHANGES="- No changes specified."

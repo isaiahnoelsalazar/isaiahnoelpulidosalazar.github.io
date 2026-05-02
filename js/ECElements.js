@@ -1,73 +1,11 @@
-/**
- * ECElements
- * A lightweight UI component library built on top of ECStyleSheet.
- * Requires ECStyleSheet.js to be loaded before this script.
- *
- * Components:
- * -- Layout & Navigation --
- * ECSidebar      – slide-in side panel
- * ECDrawer       – bottom-sliding panel (mobile-style)
- * ECTopbar       – fixed top navigation bar
- * ECBanner       – dismissible top announcement banner (supports marquee loops)
- * ECGrid         – responsive CSS Grid layout generator
- * ECBreadcrumbs  – navigation path indicators
- * ECStepper      – multi-step process indicator
- * ECTreeView     – nested collapsible list for hierarchical data
- * ECCarousel     – touch-responsive horizontal content slider
- * ECMediaCard    – content container with image/avatar/actions
- * ECHero         – large call-to-action header section
- *
- * -- Data & Feedback --
- * ECDataTable    – sortable, searchable, paginated table
- * ECProgressBar  – visual progress tracking
- * ECCountdown    – time-remaining countdown timer
- * ECAvatar       – circular image container with text initials fallback
- * ECIndicator    – small dot indicator for notifications or online status
- * ECBadge        – pill-shaped status indicator
- * ECToast        – non-blocking notification popup
- * ECTooltip      – hover-triggered text info
- * ECLightbox     – full-screen expanding image overlay viewer
- * ECSpinner      – loading animation
- * ECAccordion    – collapsible content sections
- * ECList         – styled vertical/horizontal list
- * ECDivider      – content separator (label/dashed/thick)
- *
- * -- Forms & Input --
- * ECButton       – styled action button (solid/outline)
- * ECModal        – dialog with open/close/content API
- * ECRadio        – radio button group
- * ECToggle       – toggle switch
- * ECCheckbox     – styled checkbox
- * ECTextbox      – text input field with labels
- * ECDropdown     – select dropdown
- * ECSlider       – range input with value display and ticks
- * ECDatePicker   – calendar date selection
- * ECFileUpload   – drag-and-drop file uploader with size limits
- * ECRating       – star rating input/display
- * ECPopup        – generic click-anchored floating popup box
- *
- * -- Configuration --
- * ECTheme        – unified theme/color configuration
- *
- * Common API available on all components:
- * - .enableDarkMode() / .disableDarkMode()
- * - .setTheme(ecTheme)
- * - .element  → raw DOM node to append to your document
- */
-
 (function () {
   "use strict";
 
-  /* ─── Guard ──────────────────────────────────────────────────────────── */
-
   if (!window.ECStyleSheet) {
     console.error(
-      "[ECElements] ECStyleSheet is required. " +
-        "Load ECStyleSheet.js before ECElements.js."
+      "[ECElements] ECStyleSheet is required. Load ECStyleSheet.js before ECElements.js."
     );
   }
-
-  /* ─── Internal helpers ───────────────────────────────────────────────── */
 
   var idCounter = 0;
   function uniqueId(prefix) {
@@ -75,10 +13,8 @@
     return (prefix || "ec") + "-" + idCounter;
   }
 
-  // Base font & box-sizing for all components
   var BASE_CLS = "boxSizing-border-box fontFamily--apple-system,_BlinkMacSystemFont,_'Segoe_UI',_Roboto,_sans-serif";
 
-  // Light & Dark theme variables
   var THEME_VARS_LIGHT = {
     "--ec-bg": "#ffffff",
     "--ec-surface": "#f8f9fa",
@@ -103,27 +39,26 @@
 
   function injectKeyframes() {
     var styleId = "ec-elements-keyframes";
-    if (document.getElementById(styleId)) return;
+    if (document.getElementById(styleId)){
+      return;
+    }
     var tag = document.createElement("style");
     tag.id = styleId;
-    tag.textContent = 
-      "@keyframes ec-spin { to { transform: rotate(360deg); } }\n" +
+    tag.textContent = "@keyframes ec-spin { to { transform: rotate(360deg); } }\n" +
       "@keyframes ec-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }";
     document.head.appendChild(tag);
   }
 
-  /* ─── Toast container (singleton) ───────────────────────────────────── */
-
   var toastContainer = null;
   function getToastContainer() {
-    if (toastContainer) return toastContainer;
+    if (toastContainer) {
+      return toastContainer;
+    }
     toastContainer = document.createElement("div");
     toastContainer.className = BASE_CLS + " position-fixed bottom-24px right-24px zIndex-2000 display-flex flexDirection-column gap-8px pointerEvents-none";
     document.body.appendChild(toastContainer);
     return toastContainer;
   }
-
-  /* ─── ECTheme ───────────────────────────────────────────────────────── */
 
   function ECTheme(options) {
     options = options || {};
@@ -146,8 +81,6 @@
     textMuted: "#a0a0b0",
     border: "#0f3460",
   });
-
-  /* ─── Base mixin applied to every component ──────────────────────────── */
 
   function applyBaseMixin(component) {
     var self = component;
@@ -189,8 +122,6 @@
     return self;
   }
 
-  /* ─── ECButton ───────────────────────────────────────────────────────── */
-
   function ECButton(label, options) {
     options = options || {};
     this.element = document.createElement("button");
@@ -207,15 +138,30 @@
       this.element.classList.add("background-var(--ec-accent,_#1a73e8)", "color-#ffffff");
     }
 
-    if (options.disabled) this.element.disabled = true;
+    if (options.disabled) {
+      this.element.disabled = true;
+    }
   }
 
-  ECButton.prototype.setLabel = function (label) { this.element.textContent = label; return this; };
-  ECButton.prototype.onClick = function (h) { this.element.addEventListener("click", h); return this; };
-  ECButton.prototype.disable = function () { this.element.disabled = true; return this; };
-  ECButton.prototype.enable = function () { this.element.disabled = false; return this; };
+  ECButton.prototype.setLabel = function (label) { 
+    this.element.textContent = label;
+    return this;
+  };
+  
+  ECButton.prototype.onClick = function (h) {
+    this.element.addEventListener("click", h);
+    return this;
+  };
+  
+  ECButton.prototype.disable = function () {
+    this.element.disabled = true;
+    return this;
+  };
 
-  /* ─── ECModal ────────────────────────────────────────────────────────── */
+  ECButton.prototype.enable = function () {
+    this.element.disabled = false;
+    return this;
+  };
 
   function ECModal(title) {
     var self = this;
@@ -236,7 +182,9 @@
     this._closeBtn = document.createElement("button");
     this._closeBtn.className = "background-none border-none fontSize-22px cursor-pointer color-var(--ec-text-muted,_#6c757d) padding-0_4px lineHeight-1";
     this._closeBtn.textContent = "\u00D7";
-    this._closeBtn.addEventListener("click", function () { self.close(); });
+    this._closeBtn.addEventListener("click", function () {
+      self.close();
+    });
 
     this._header.appendChild(this._titleEl);
     this._header.appendChild(this._closeBtn);
@@ -253,7 +201,9 @@
     this.element.appendChild(this._box);
 
     this.element.addEventListener("click", function (e) {
-      if (e.target === self.element) self.close();
+      if (e.target === self.element) {
+        self.close();
+      }
     });
 
     applyBaseMixin(this);
@@ -263,7 +213,7 @@
     var el = this.element;
     el.classList.remove("display-none");
     el.classList.add("display-flex");
-    void el.offsetHeight; // reflow
+    void el.offsetHeight;
     el.classList.remove("opacity-0", "pointerEvents-none");
     el.classList.add("opacity-1", "pointerEvents-auto");
     this._box.classList.remove("transform-translateY(14px)");
@@ -278,34 +228,60 @@
     this._box.classList.remove("transform-translateY(0)");
     this._box.classList.add("transform-translateY(14px)");
     el.addEventListener("transitionend", function handler(e) {
-      if (e.target !== el) return;
+      if (e.target !== el) {
+        return;
+      }
       el.classList.remove("display-flex");
       el.classList.add("display-none");
-    }, { once: true });
+    },
+    {
+      once: true
+    });
     return this;
   };
 
-  ECModal.prototype.setTitle = function (title) { this._titleEl.textContent = title; return this; };
+  ECModal.prototype.setTitle = function (title) {
+    this._titleEl.textContent = title;
+    return this;
+  };
+
   ECModal.prototype.setContent = function (content) {
-    if (typeof content === "string") this._body.innerHTML = content;
-    else { this._body.innerHTML = ""; this._body.appendChild(content); }
+    if (typeof content === "string") {
+      this._body.innerHTML = content;
+    } else {
+      this._body.innerHTML = "";
+      this._body.appendChild(content);
+    }
     return this;
   };
+
   ECModal.prototype.addContent = function (content) {
-    if (typeof content === "string") { var s = document.createElement("span"); s.innerHTML = content; this._body.appendChild(s); }
-    else this._body.appendChild(content);
+    if (typeof content === "string") {
+      var s = document.createElement("span");
+      s.innerHTML = content;
+      this._body.appendChild(s);
+    } else {
+      this._body.appendChild(content);
+    }
     return this;
   };
-  ECModal.prototype.clearContent = function () { this._body.innerHTML = ""; return this; };
+
+  ECModal.prototype.clearContent = function () {
+    this._body.innerHTML = "";
+    return this;
+  };
+
   ECModal.prototype.addFooterButton = function (label, handler, variant) {
-    var btn = new ECButton(label, { variant: variant || "filled" });
+    var btn = new ECButton(label, {
+      variant: variant || "filled"
+    });
     btn.setTheme(this._theme);
-    if (handler) btn.onClick(handler);
+    if (handler) {
+      btn.onClick(handler);
+    }
     this._footer.appendChild(btn.element);
     return this;
   };
-
-  /* ─── ECToast ────────────────────────────────────────────────────────── */
 
   function ECToast(message, options) {
     options = options || {};
@@ -313,7 +289,12 @@
     this._duration = options.duration || 3000;
     this._type = options.type || "info";
 
-    var accentMap = { info: "#1a73e8", success: "#2e7d32", warning: "#e65100", error: "#c62828" };
+    var accentMap = {
+      info: "#1a73e8",
+      success: "#2e7d32",
+      warning: "#e65100",
+      error: "#c62828"
+    };
 
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " background-var(--ec-bg,_#fff) color-var(--ec-text,_#212529) border-1px_solid_var(--ec-border,_#dee2e6) borderLeftWidth-4px borderRadius-8px padding-12px_16px minWidth-240px maxWidth-360px fontSize-14px pointerEvents-auto opacity-0 transform-translateX(20px) transition-opacity_0.25s_ease,_transform_0.25s_ease boxShadow-0_4px_12px_rgba(0,0,0,0.12)";
@@ -335,13 +316,13 @@
       self.element.classList.remove("opacity-1", "transform-translateX(0)");
       self.element.classList.add("opacity-0", "transform-translateX(20px)");
       setTimeout(function () {
-        if (self.element.parentNode) self.element.parentNode.removeChild(self.element);
+        if (self.element.parentNode) {
+          self.element.parentNode.removeChild(self.element);
+        }
       }, 300);
     }, this._duration);
     return this;
   };
-
-  /* ─── ECSidebar ──────────────────────────────────────────────────────── */
 
   function ECSidebar(title) {
     var self = this;
@@ -385,27 +366,48 @@
     el.classList.remove("transform-translateX(0)");
     el.classList.add("transform-translateX(-100%)");
     el.addEventListener("transitionend", function handler(e) {
-      if (e.target !== el) return;
+      if (e.target !== el) {
+        return;
+      }
       el.classList.remove("display-block");
       el.classList.add("display-none");
-    }, { once: true });
+    },
+    {
+      once: true
+    });
     return this;
   };
 
   ECSidebar.prototype.setContent = function (content) {
-    if (typeof content === "string") this._body.innerHTML = content;
-    else { this._body.innerHTML = ""; this._body.appendChild(content); }
+    if (typeof content === "string") {
+      this._body.innerHTML = content;
+    } else {
+      this._body.innerHTML = "";
+      this._body.appendChild(content);
+    }
     return this;
   };
+  
   ECSidebar.prototype.addContent = function (content) {
-    if (typeof content === "string") { var s = document.createElement("span"); s.innerHTML = content; this._body.appendChild(s); }
-    else this._body.appendChild(content);
+    if (typeof content === "string") {
+      var s = document.createElement("span");
+      s.innerHTML = content;
+      this._body.appendChild(s);
+    } else {
+      this._body.appendChild(content);
+    }
     return this;
   };
-  ECSidebar.prototype.setTitle = function (title) { this._titleEl.textContent = title; return this; };
-  ECSidebar.prototype.setWidth = function (width) { this.element.style.width = width; return this; };
-
-  /* ─── ECTopbar ───────────────────────────────────────────────────────── */
+  
+  ECSidebar.prototype.setTitle = function (title) {
+    this._titleEl.textContent = title;
+    return this;
+  };
+  
+  ECSidebar.prototype.setWidth = function (width) {
+    this.element.style.width = width;
+    return this;
+  };
 
   function ECTopbar(title) {
     this.element = document.createElement("div");
@@ -428,14 +430,19 @@
     applyBaseMixin(this);
   }
 
-  ECTopbar.prototype.setTitle = function (title) { this._titleEl.textContent = title; return this; };
-  ECTopbar.prototype.addAction = function (node) {
-    if (node && node.element) this._actionsContainer.appendChild(node.element);
-    else if (node instanceof HTMLElement) this._actionsContainer.appendChild(node);
+  ECTopbar.prototype.setTitle = function (title) {
+    this._titleEl.textContent = title;
     return this;
   };
 
-  /* ─── ECRadio ────────────────────────────────────────────────────────── */
+  ECTopbar.prototype.addAction = function (node) {
+    if (node && node.element) {
+      this._actionsContainer.appendChild(node.element);
+    } else if (node instanceof HTMLElement) {
+      this._actionsContainer.appendChild(node);
+    }
+    return this;
+  };
 
   function ECRadio(name, options) {
     this.element = document.createElement("div");
@@ -447,7 +454,9 @@
 
     if (options && Array.isArray(options)) {
       var self = this;
-      options.forEach(function (opt) { self.addOption(opt.value, opt.label, opt.checked); });
+      options.forEach(function (opt) {
+        self.addOption(opt.value, opt.label, opt.checked);
+      });
     }
   }
 
@@ -463,7 +472,9 @@
     input.name = this._name;
     input.value = value;
     input.id = id;
-    if (checked) input.checked = true;
+    if (checked) {
+      input.checked = true;
+    }
 
     var text = document.createElement("span");
     text.textContent = label || value;
@@ -476,15 +487,22 @@
   };
 
   ECRadio.prototype.getValue = function () {
-    for (var i = 0; i < this._inputs.length; i++) if (this._inputs[i].checked) return this._inputs[i].value;
+    for (var i = 0; i < this._inputs.length; i++) {
+      if (this._inputs[i].checked) {
+        return this._inputs[i].value;
+      }
+    }
     return null;
   };
+
   ECRadio.prototype.onChange = function (handler) {
-    this.element.addEventListener("change", function (e) { if (e.target.type === "radio") handler(e.target.value, e); });
+    this.element.addEventListener("change", function (e) {
+      if (e.target.type === "radio") {
+        handler(e.target.value, e);
+      }
+    });
     return this;
   };
-
-  /* ─── ECToggle ───────────────────────────────────────────────────────── */
 
   function ECToggle(label, checked) {
     var self = this;
@@ -513,7 +531,9 @@
     this.element.addEventListener("click", function () {
       self._isChecked = !self._isChecked;
       self._syncState();
-      if (self._changeHandler) self._changeHandler(self._isChecked);
+      if (self._changeHandler) {
+        self._changeHandler(self._isChecked);
+      }
     });
 
     applyBaseMixin(this);
@@ -529,12 +549,25 @@
     }
   };
 
-  ECToggle.prototype.getValue = function () { return this._isChecked; };
-  ECToggle.prototype.setValue = function (val) { this._isChecked = !!val; this._syncState(); return this; };
-  ECToggle.prototype.onChange = function (h) { this._changeHandler = h; return this; };
-  ECToggle.prototype.setLabel = function (lbl) { this._labelEl.textContent = lbl; return this; };
-
-  /* ─── ECCheckbox ─────────────────────────────────────────────────────── */
+  ECToggle.prototype.getValue = function () {
+    return this._isChecked;
+  };
+  
+  ECToggle.prototype.setValue = function (val) {
+    this._isChecked = !!val;
+    this._syncState();
+    return this;
+  };
+  
+  ECToggle.prototype.onChange = function (h) {
+    this._changeHandler = h;
+    return this;
+  };
+  
+  ECToggle.prototype.setLabel = function (lbl) {
+    this._labelEl.textContent = lbl;
+    return this;
+  };
 
   function ECCheckbox(label, checked) {
     var self = this;
@@ -564,7 +597,9 @@
     this.element.addEventListener("click", function () {
       self._isChecked = !self._isChecked;
       self._syncState();
-      if (self._changeHandler) self._changeHandler(self._isChecked);
+      if (self._changeHandler) {
+        self._changeHandler(self._isChecked);
+      }
     });
 
     applyBaseMixin(this);
@@ -580,12 +615,24 @@
     }
   };
 
-  ECCheckbox.prototype.getValue = function () { return this._isChecked; };
-  ECCheckbox.prototype.setValue = function (val) { this._isChecked = !!val; this._syncState(); return this; };
-  ECCheckbox.prototype.onChange = function (h) { this._changeHandler = h; return this; };
-  ECCheckbox.prototype.setLabel = function (lbl) { this._labelEl.textContent = lbl; return this; };
-
-  /* ─── ECTextbox ──────────────────────────────────────────────────────── */
+  ECCheckbox.prototype.getValue = function () {
+    return this._isChecked;
+  };
+  
+  ECCheckbox.prototype.setValue = function (val) {
+    this._isChecked = !!val; this._syncState();
+    return this;
+  };
+  
+  ECCheckbox.prototype.onChange = function (h) {
+    this._changeHandler = h;
+    return this;
+  };
+  
+  ECCheckbox.prototype.setLabel = function (lbl) {
+    this._labelEl.textContent = lbl;
+    return this;
+  };
 
   function ECTextbox(options) {
     options = options || {};
@@ -603,19 +650,43 @@
     this._input.type = options.type || "text";
     this._input.className = "width-100% padding-8px_12px border-1px_solid_var(--ec-border,_#dee2e6) borderRadius-8px fontSize-14px color-var(--ec-text,_#212529) background-var(--ec-bg,_#fff) boxSizing-border-box outline-none transition-borderColor_0.15s_ease focus:borderColor-var(--ec-accent,_#1a73e8)";
     this._input.placeholder = options.placeholder || "";
-    if (options.value) this._input.value = options.value;
+    if (options.value) {
+      this._input.value = options.value;
+    }
 
     this.element.appendChild(this._input);
     applyBaseMixin(this);
   }
 
-  ECTextbox.prototype.getValue = function () { return this._input.value; };
-  ECTextbox.prototype.setValue = function (val) { this._input.value = val; return this; };
-  ECTextbox.prototype.setPlaceholder = function (text) { this._input.placeholder = text; return this; };
-  ECTextbox.prototype.onInput = function (h) { this._input.addEventListener("input", function (e) { h(e.target.value, e); }); return this; };
-  ECTextbox.prototype.onEnter = function (h) { this._input.addEventListener("keydown", function (e) { if (e.key === "Enter") h(e.target.value, e); }); return this; };
+  ECTextbox.prototype.getValue = function () {
+    return this._input.value;
+  };
+  
+  ECTextbox.prototype.setValue = function (val) {
+    this._input.value = val;
+    return this;
+  };
 
-  /* ─── ECDropdown ─────────────────────────────────────────────────────── */
+  ECTextbox.prototype.setPlaceholder = function (text) {
+    this._input.placeholder = text;
+    return this;
+  };
+  
+  ECTextbox.prototype.onInput = function (h) {
+    this._input.addEventListener("input", function (e) {
+      h(e.target.value, e);
+    });
+    return this;
+  };
+
+  ECTextbox.prototype.onEnter = function (h) {
+    this._input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        h(e.target.value, e);
+      }
+    });
+    return this;
+  };
 
   function ECDropdown(options) {
     options = options || {};
@@ -635,7 +706,9 @@
 
     if (options.items && Array.isArray(options.items)) {
       var self = this;
-      options.items.forEach(function (item) { self.addOption(item.value, item.label); });
+      options.items.forEach(function (item) {
+        self.addOption(item.value, item.label);
+      });
     }
     applyBaseMixin(this);
   }
@@ -647,11 +720,22 @@
     this._select.appendChild(opt);
     return this;
   };
-  ECDropdown.prototype.getValue = function () { return this._select.value; };
-  ECDropdown.prototype.setValue = function (val) { this._select.value = val; return this; };
-  ECDropdown.prototype.onChange = function (h) { this._select.addEventListener("change", function (e) { h(e.target.value, e); }); return this; };
 
-  /* ─── ECBadge ────────────────────────────────────────────────────────── */
+  ECDropdown.prototype.getValue = function () {
+    return this._select.value;
+  };
+
+  ECDropdown.prototype.setValue = function (val) {
+    this._select.value = val;
+    return this;
+  };
+
+  ECDropdown.prototype.onChange = function (h) {
+    this._select.addEventListener("change", function (e) {
+      h(e.target.value, e);
+    });
+    return this;
+  };
 
   var badgeStyles = {
     default:  { bg: "#e0e0e0", color: "#424242" },
@@ -674,15 +758,17 @@
     applyBaseMixin(this);
   }
 
-  ECBadge.prototype.setLabel = function (label) { this.element.textContent = label; return this; };
+  ECBadge.prototype.setLabel = function (label) {
+    this.element.textContent = label;
+    return this;
+  };
+
   ECBadge.prototype.setType = function (type) {
     var style = badgeStyles[type] || badgeStyles.default;
     this.element.style.background = style.bg;
     this.element.style.color = style.color;
     return this;
   };
-
-  /* ─── ECAccordion ────────────────────────────────────────────────────── */
 
   function ECAccordion(options) {
     options = options || {};
@@ -695,14 +781,18 @@
 
     if (options.items && Array.isArray(options.items)) {
       var self = this;
-      options.items.forEach(function (item) { self.addItem(item.title, item.content, item.open); });
+      options.items.forEach(function (item) {
+        self.addItem(item.title, item.content, item.open);
+      });
     }
   }
 
   ECAccordion.prototype.addItem = function (title, content, startOpen) {
     var self = this;
     var item = document.createElement("div");
-    if (this._items.length > 0) item.className = "borderTop-1px_solid_var(--ec-border,_#dee2e6)";
+    if (this._items.length > 0) {
+      item.className = "borderTop-1px_solid_var(--ec-border,_#dee2e6)";
+    }
     item.dataset.open = startOpen ? "true" : "false";
 
     var trigger = document.createElement("button");
@@ -714,7 +804,9 @@
     var icon = document.createElement("span");
     icon.className = "fontSize-12px transition-transform_0.22s_ease display-inline-block color-var(--ec-text-muted,_#6c757d)";
     icon.textContent = "▼";
-    if (startOpen) icon.classList.add("transform-rotate(180deg)");
+    if (startOpen) {
+      icon.classList.add("transform-rotate(180deg)");
+    }
 
     trigger.appendChild(titleSpan);
     trigger.appendChild(icon);
@@ -723,8 +815,11 @@
     var baseBodyClass = "overflow-hidden transition-maxHeight_0.25s_ease,_padding_0.25s_ease fontSize-14px color-var(--ec-text,_#212529) boxSizing-border-box ";
     body.className = baseBodyClass + (startOpen ? "maxHeight-600px padding-12px_16px" : "maxHeight-0 padding-0_16px");
 
-    if (typeof content === "string") body.innerHTML = content;
-    else if (content instanceof HTMLElement) body.appendChild(content);
+    if (typeof content === "string") {
+      body.innerHTML = content;
+    } else if (content instanceof HTMLElement) {
+      body.appendChild(content);
+    }
 
     trigger.addEventListener("click", function () {
       var isOpen = item.dataset.open === "true";
@@ -760,8 +855,6 @@
     return this;
   };
 
-  /* ─── ECList ─────────────────────────────────────────────────────────── */
-
   function ECList(options) {
     options = options || {};
     this.element = document.createElement("ul");
@@ -770,14 +863,19 @@
     this._direction = options.direction || "vertical";
     this._items = [];
 
-    if (this._direction === "horizontal") this.element.classList.add("flexDirection-row", "flexWrap-wrap");
-    else this.element.classList.add("flexDirection-column");
+    if (this._direction === "horizontal") {
+      this.element.classList.add("flexDirection-row", "flexWrap-wrap");
+    } else {
+      this.element.classList.add("flexDirection-column");
+    }
 
     applyBaseMixin(this);
 
     if (options.items && Array.isArray(options.items)) {
       var self = this;
-      options.items.forEach(function (item) { self.addItem(item); });
+      options.items.forEach(function (item) {
+        self.addItem(item);
+      });
     }
   }
 
@@ -787,7 +885,9 @@
     
     if (this._variant === "bordered") {
       li.classList.add("borderRadius-0", "padding-10px_4px");
-      if (this._items.length > 0) li.classList.add("borderTop-1px_solid_var(--ec-border,_#dee2e6)");
+      if (this._items.length > 0) {
+        li.classList.add("borderTop-1px_solid_var(--ec-border,_#dee2e6)");
+      }
     } else {
       li.classList.add("padding-8px_12px", "borderRadius-6px");
     }
@@ -800,10 +900,15 @@
       li.classList.add("background-var(--ec-surface,_#f8f9fa)");
     }
 
-    if (typeof content === "string") li.textContent = content;
-    else if (content instanceof HTMLElement) li.appendChild(content);
+    if (typeof content === "string") {
+      li.textContent = content;
+    } else if (content instanceof HTMLElement) {
+      li.appendChild(content);
+    }
 
-    if (onClick) li.addEventListener("click", onClick);
+    if (onClick) {
+      li.addEventListener("click", onClick);
+    }
 
     this.element.appendChild(li);
     this._items.push(li);
@@ -816,8 +921,6 @@
     return this;
   };
 
-  /* ─── ECBreadcrumbs ──────────────────────────────────────────────────── */
-
   function ECBreadcrumbs(items, separator) {
     this.element = document.createElement("ol");
     this.element.className = BASE_CLS + " display-flex alignItems-center flexWrap-wrap gap-4px fontSize-14px padding-0 margin-0 listStyle-none";
@@ -828,12 +931,17 @@
 
     if (items && Array.isArray(items)) {
       var self = this;
-      items.forEach(function (item) { self.addCrumb(item.label, item.href); });
+      items.forEach(function (item) {
+        self.addCrumb(item.label, item.href);
+      });
     }
   }
 
   ECBreadcrumbs.prototype.addCrumb = function (label, href) {
-    this._items.push({ label: label, href: href || null });
+    this._items.push({
+      label: label,
+      href: href || null
+    });
     this._rebuild();
     return this;
   };
@@ -846,8 +954,11 @@
       var li = document.createElement("li");
       li.className = "display-flex alignItems-center gap-4px";
 
-      if (isLast) li.classList.add("color-var(--ec-text,_#212529)", "fontWeight-500");
-      else li.classList.add("color-var(--ec-text-muted,_#6c757d)");
+      if (isLast) {
+        li.classList.add("color-var(--ec-text,_#212529)", "fontWeight-500");
+      } else {
+        li.classList.add("color-var(--ec-text-muted,_#6c757d)");
+      }
 
       if (!isLast && crumb.href) {
         var a = document.createElement("a");
@@ -877,8 +988,6 @@
     return this;
   };
 
-  /* ─── ECStepper ──────────────────────────────────────────────────────── */
-
   function ECStepper(steps, currentStep) {
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " display-flex alignItems-flex-start gap-0 width-100%";
@@ -899,8 +1008,11 @@
 
       if (i < self._steps.length - 1) {
         step.className += " after:content-'' after:position-absolute after:top-14px after:left-calc(50%_+_14px) after:right-calc(-50%_+_14px) after:height-2px after:transition-background_0.3s after:zIndex-0";
-        if (i < self._current) step.className += " after:background-var(--ec-accent,_#1a73e8)";
-        else step.className += " after:background-var(--ec-border,_#dee2e6)";
+        if (i < self._current) {
+          step.className += " after:background-var(--ec-accent,_#1a73e8)";
+        } else {
+          step.className += " after:background-var(--ec-border,_#dee2e6)";
+        }
       }
 
       var circle = document.createElement("div");
@@ -918,9 +1030,13 @@
       var lbl = document.createElement("div");
       lbl.className = "marginTop-6px fontSize-12px fontWeight-500 textAlign-center";
       
-      if (i < self._current) lbl.classList.add("color-var(--ec-text,_#212529)");
-      else if (i === self._current) lbl.classList.add("color-var(--ec-accent,_#1a73e8)");
-      else lbl.classList.add("color-var(--ec-text-muted,_#6c757d)");
+      if (i < self._current) {
+        lbl.classList.add("color-var(--ec-text,_#212529)");
+      } else if (i === self._current) {
+        lbl.classList.add("color-var(--ec-accent,_#1a73e8)");
+      } else {
+        lbl.classList.add("color-var(--ec-text-muted,_#6c757d)");
+      }
 
       lbl.textContent = label;
       step.appendChild(circle);
@@ -929,12 +1045,23 @@
     });
   };
 
-  ECStepper.prototype.setStep = function (index) { this._current = Math.max(0, Math.min(index, this._steps.length - 1)); this._render(); return this; };
-  ECStepper.prototype.next = function () { return this.setStep(this._current + 1); };
-  ECStepper.prototype.prev = function () { return this.setStep(this._current - 1); };
-  ECStepper.prototype.getStep = function () { return this._current; };
+  ECStepper.prototype.setStep = function (index) {
+    this._current = Math.max(0, Math.min(index, this._steps.length - 1));
+    this._render();
+    return this;
+  };
 
-  /* ─── ECDivider ──────────────────────────────────────────────────────── */
+  ECStepper.prototype.next = function () {
+    return this.setStep(this._current + 1);
+  };
+
+  ECStepper.prototype.prev = function () {
+    return this.setStep(this._current - 1);
+  };
+
+  ECStepper.prototype.getStep = function () {
+    return this._current;
+  };
 
   function ECDivider(options) {
     options = options || {};
@@ -961,14 +1088,16 @@
       this.element = document.createElement("hr");
       this.element.className = BASE_CLS + " borderLeft-none borderRight-none borderBottom-none";
       this.element.classList.add("borderTop-1px_solid_var(--ec-border,_#dee2e6)", "margin-16px_0", "width-100%");
-      if (options.thick) this.element.classList.add("borderTopWidth-2px");
-      if (options.dashed) this.element.classList.add("borderTopStyle-dashed");
+      if (options.thick) {
+        this.element.classList.add("borderTopWidth-2px");
+      }
+      if (options.dashed) {
+        this.element.classList.add("borderTopStyle-dashed");
+      }
     }
 
     applyBaseMixin(this);
   }
-
-  /* ─── ECProgressBar ──────────────────────────────────────────────────── */
 
   function ECProgressBar(options) {
     options = options || {};
@@ -1015,18 +1144,27 @@
   ECProgressBar.prototype.setValue = function (val) {
     this._value = Math.min(100, Math.max(0, val));
     this._bar.style.width = this._value + "%";
-    if (this._pctEl) this._pctEl.textContent = this._value + "%";
+    if (this._pctEl) {
+      this._pctEl.textContent = this._value + "%";
+    }
     return this;
   };
 
-  ECProgressBar.prototype.getValue = function () { return this._value; };
-  ECProgressBar.prototype.setLabel = function (label) { if (this._labelEl) this._labelEl.textContent = label; return this; };
+  ECProgressBar.prototype.getValue = function () {
+    return this._value;
+  };
+
+  ECProgressBar.prototype.setLabel = function (label) {
+    if (this._labelEl) {
+      this._labelEl.textContent = label;
+    }
+    return this;
+  };
+
   ECProgressBar.prototype.setHeight = function (px) {
     this._track.style.height = typeof px === "number" ? px + "px" : px;
     return this;
   };
-
-  /* ─── ECSpinner ──────────────────────────────────────────────────────── */
 
   function ECSpinner(options) {
     options = options || {};
@@ -1038,13 +1176,15 @@
 
   ECSpinner.prototype.setSize = function (size) {
     this.element.classList.remove("width-16px", "height-16px", "borderWidth-2px", "width-40px", "height-40px", "borderWidth-4px", "width-24px", "height-24px");
-    if (size === "sm") this.element.classList.add("width-16px", "height-16px", "borderWidth-2px");
-    else if (size === "lg") this.element.classList.add("width-40px", "height-40px", "borderWidth-4px");
-    else this.element.classList.add("width-24px", "height-24px");
+    if (size === "sm") {
+      this.element.classList.add("width-16px", "height-16px", "borderWidth-2px");
+    } else if (size === "lg") {
+      this.element.classList.add("width-40px", "height-40px", "borderWidth-4px");
+    } else {
+      this.element.classList.add("width-24px", "height-24px");
+    }
     return this;
   };
-
-  /* ─── ECTooltip ──────────────────────────────────────────────────────── */
 
   function ECTooltip(targetEl, text, options) {
     var self = this;
@@ -1052,8 +1192,12 @@
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " position-relative display-inline-flex";
 
-    if (targetEl && targetEl.element) targetEl = targetEl.element;
-    if (targetEl instanceof HTMLElement) this.element.appendChild(targetEl);
+    if (targetEl && targetEl.element) {
+      targetEl = targetEl.element;
+    }
+    if (targetEl instanceof HTMLElement) {
+      this.element.appendChild(targetEl);
+    }
 
     this._box = document.createElement("div");
     this._box.className = "position-absolute bottom-calc(100%_+_6px) left-50% transform-translateX(-50%) background-#1e1e2e color-#e0e0e0 fontSize-12px padding-5px_10px borderRadius-6px whiteSpace-nowrap pointerEvents-none opacity-0 transition-opacity_0.15s_ease zIndex-3000 after:content-'' after:position-absolute after:top-100% after:left-50% after:transform-translateX(-50%) after:border-5px_solid_transparent after:borderTopColor-#1e1e2e";
@@ -1070,9 +1214,10 @@
     applyBaseMixin(this);
   }
 
-  ECTooltip.prototype.setText = function (text) { this._box.textContent = text; return this; };
-
-  /* ─── ECPopup ────────────────────────────────────────────────────────── */
+  ECTooltip.prototype.setText = function (text) {
+    this._box.textContent = text;
+    return this;
+  };
 
   function ECPopup(triggerEl, options) {
     options = options || {};
@@ -1081,7 +1226,9 @@
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " position-relative display-inline-flex";
 
-    if (triggerEl && triggerEl.element) triggerEl = triggerEl.element;
+    if (triggerEl && triggerEl.element) {
+      triggerEl = triggerEl.element;
+    }
     if (triggerEl instanceof HTMLElement) {
       this.element.appendChild(triggerEl);
       this._trigger = triggerEl;
@@ -1111,20 +1258,29 @@
     box.classList.add("opacity-1", "transform-translateY(0)");
     this._isOpen = true;
     setTimeout(function () {
-      self._outsideHandler = function (e) { if (!self.element.contains(e.target)) self.close(); };
+      self._outsideHandler = function (e) {
+        if (!self.element.contains(e.target)) {
+          self.close();
+        }
+      };
       document.addEventListener("click", self._outsideHandler);
     }, 0);
     return this;
   };
 
   ECPopup.prototype.close = function () {
-    if (!this._isOpen) return this;
+    if (!this._isOpen) {
+      return this;
+    }
     var box = this._box;
     box.classList.remove("opacity-1", "transform-translateY(0)");
     box.classList.add("opacity-0", "transform-translateY(6px)");
     box.addEventListener("transitionend", function () {
       box.classList.replace("display-block", "display-none");
-    }, { once: true });
+    },
+    {
+      once: true
+    });
     this._isOpen = false;
     if (this._outsideHandler) {
       document.removeEventListener("click", this._outsideHandler);
@@ -1134,21 +1290,29 @@
   };
 
   ECPopup.prototype.setContent = function (content) {
-    if (typeof content === "string") this._box.innerHTML = content;
-    else if (content instanceof HTMLElement) { this._box.innerHTML = ""; this._box.appendChild(content); }
+    if (typeof content === "string") {
+      this._box.innerHTML = content;
+    } else if (content instanceof HTMLElement) {
+      this._box.innerHTML = "";
+      this._box.appendChild(content);
+    }
     return this;
   };
   ECPopup.prototype.addContent = function (content) {
-    if (typeof content === "string") { var span = document.createElement("span"); span.innerHTML = content; this._box.appendChild(span); }
-    else if (content instanceof HTMLElement) this._box.appendChild(content);
+    if (typeof content === "string") {
+      var span = document.createElement("span");
+      span.innerHTML = content;
+      this._box.appendChild(span);
+    } else if (content instanceof HTMLElement) {
+      this._box.appendChild(content);
+    }
     return this;
   };
+  
   ECPopup.prototype.setWidth = function (width) {
     this._box.style.minWidth = typeof width === "number" ? width + "px" : width;
     return this;
   };
-
-  /* ─── ECDataTable ────────────────────────────────────────────────────── */
 
   function ECDataTable(options) {
     options = options || {};
@@ -1168,19 +1332,32 @@
 
   ECDataTable.prototype._filtered = function () {
     var q = this._filter.toLowerCase();
-    if (!q) return this._data.slice();
+    if (!q) {
+      return this._data.slice();
+    }
     return this._data.filter(function (row) {
-      return Object.values(row).some(function (v) { return String(v).toLowerCase().indexOf(q) !== -1; });
+      return Object.values(row).some(function (v) {
+        return String(v).toLowerCase().indexOf(q) !== -1;
+      });
     });
   };
 
   ECDataTable.prototype._sorted = function (rows) {
-    if (!this._sortKey) return rows;
+    if (!this._sortKey) {
+      return rows;
+    }
     var key = this._sortKey, dir = this._sortDir;
     return rows.slice().sort(function (a, b) {
       var av = a[key], bv = b[key];
-      if (av == null) return 1; if (bv == null) return -1;
-      if (!isNaN(av) && !isNaN(bv)) return (Number(av) - Number(bv)) * dir;
+      if (av == null) {
+        return 1;
+      }
+      if (bv == null) {
+        return -1;
+      }
+      if (!isNaN(av) && !isNaN(bv)) {
+        return (Number(av) - Number(bv)) * dir;
+      }
       return String(av).localeCompare(String(bv)) * dir;
     });
   };
@@ -1197,7 +1374,11 @@
     search.type = "text";
     search.placeholder = "Search…";
     search.value = this._filter;
-    search.addEventListener("input", function () { self._filter = search.value; self._page = 0; self._build(); });
+    search.addEventListener("input", function () {
+      self._filter = search.value;
+      self._page = 0;
+      self._build();
+    });
 
     this._infoEl = document.createElement("span");
     this._infoEl.className = "fontSize-12px color-var(--ec-text-muted,_#6c757d)";
@@ -1221,9 +1402,14 @@
       if (col.sortable !== false) {
         th.appendChild(icon);
         th.addEventListener("click", function () {
-          if (self._sortKey === col.key) self._sortDir *= -1;
-          else { self._sortKey = col.key; self._sortDir = 1; }
-          self._page = 0; self._build();
+          if (self._sortKey === col.key) {
+            self._sortDir *= -1;
+          } else {
+            self._sortKey = col.key;
+            self._sortDir = 1;
+          }
+          self._page = 0;
+          self._build();
         });
         if (self._sortKey === col.key) {
           icon.classList.remove("opacity-0.4");
@@ -1252,13 +1438,18 @@
       self._columns.forEach(function (col) {
         var td = document.createElement("td");
         td.className = "padding-10px_14px color-var(--ec-text,_#212529) verticalAlign-middle";
-        if (rIdx < pageRows.length - 1) td.classList.add("borderBottom-1px_solid_var(--ec-border,_#dee2e6)");
+        if (rIdx < pageRows.length - 1) {
+          td.classList.add("borderBottom-1px_solid_var(--ec-border,_#dee2e6)");
+        }
 
         var val = row[col.key];
         if (col.render) {
           var rendered = col.render(val, row);
-          if (rendered instanceof HTMLElement) td.appendChild(rendered);
-          else td.innerHTML = rendered;
+          if (rendered instanceof HTMLElement) {
+            td.appendChild(rendered);
+          } else {
+            td.innerHTML = rendered;
+          }
         } else {
           td.textContent = val != null ? val : "";
         }
@@ -1301,11 +1492,25 @@
     this.element.appendChild(footer);
   };
 
-  ECDataTable.prototype.setData = function (data) { this._data = data || []; this._page = 0; this._build(); return this; };
-  ECDataTable.prototype.setColumns = function (cols) { this._columns = cols || []; this._build(); return this; };
-  ECDataTable.prototype.setPageSize = function (n) { this._pageSize = n; this._page = 0; this._build(); return this; };
+  ECDataTable.prototype.setData = function (data) {
+    this._data = data || [];
+    this._page = 0;
+    this._build();
+    return this;
+  };
 
-  /* ─── ECSlider ───────────────────────────────────────────────────────── */
+  ECDataTable.prototype.setColumns = function (cols) {
+    this._columns = cols || [];
+    this._build();
+    return this;
+  };
+
+  ECDataTable.prototype.setPageSize = function (n) {
+    this._pageSize = n;
+    this._page = 0;
+    this._build();
+    return this;
+  };
 
   function ECSlider(options) {
     options = options || {};
@@ -1348,8 +1553,12 @@
     var self = this;
     this._input.addEventListener("input", function () {
       self._value = Number(self._input.value);
-      if (self._valueEl) self._valueEl.textContent = self._value + self._suffix;
-      if (self._changeHandler) self._changeHandler(self._value);
+      if (self._valueEl) {
+        self._valueEl.textContent = self._value + self._suffix;
+      }
+      if (self._changeHandler) {
+        self._changeHandler(self._value);
+      }
     });
 
     this.element.appendChild(this._input);
@@ -1369,16 +1578,23 @@
     applyBaseMixin(this);
   }
 
-  ECSlider.prototype.getValue = function () { return this._value; };
+  ECSlider.prototype.getValue = function () {
+    return this._value;
+  };
+
   ECSlider.prototype.setValue = function (val) {
     this._value = Math.min(this._max, Math.max(this._min, val));
     this._input.value = this._value;
-    if (this._valueEl) this._valueEl.textContent = this._value + this._suffix;
+    if (this._valueEl) {
+      this._valueEl.textContent = this._value + this._suffix;
+    }
     return this;
   };
-  ECSlider.prototype.onChange = function (h) { this._changeHandler = h; return this; };
 
-  /* ─── ECDatePicker ───────────────────────────────────────────────────── */
+  ECSlider.prototype.onChange = function (h) {
+    this._changeHandler = h;
+    return this;
+  };
 
   var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var DAYS   = ["Su","Mo","Tu","We","Th","Fr","Sa"];
@@ -1442,7 +1658,11 @@
     cal.classList.add("opacity-1", "transform-translateY(0)");
     this._isOpen = true;
     setTimeout(function () {
-      self._outsideHandler = function (e) { if (!self.element.contains(e.target)) self._closeCal(); };
+      self._outsideHandler = function (e) {
+        if (!self.element.contains(e.target)) {
+          self._closeCal();
+        }
+      };
       document.addEventListener("click", self._outsideHandler);
     }, 0);
   };
@@ -1453,7 +1673,10 @@
     cal.classList.add("opacity-0", "transform-translateY(6px)");
     cal.addEventListener("transitionend", function () {
       cal.classList.replace("display-block", "display-none");
-    }, { once: true });
+    },
+    {
+      once: true
+    });
     this._isOpen = false;
     if (this._outsideHandler) {
       document.removeEventListener("click", this._outsideHandler);
@@ -1472,16 +1695,24 @@
     var prev = document.createElement("button");
     prev.className = navCls; prev.type = "button"; prev.textContent = "‹";
     prev.addEventListener("click", function (e) {
-      e.stopPropagation(); self._viewMonth--;
-      if (self._viewMonth < 0) { self._viewMonth = 11; self._viewYear--; }
+      e.stopPropagation();
+      self._viewMonth--;
+      if (self._viewMonth < 0) {
+        self._viewMonth = 11;
+        self._viewYear--;
+      }
       self._renderCal();
     });
 
     var next = document.createElement("button");
-    next.className = navCls; next.type = "button"; next.textContent = "›";
+    next.className = navCls; next.type = "button";
+    next.textContent = "›";
     next.addEventListener("click", function (e) {
       e.stopPropagation(); self._viewMonth++;
-      if (self._viewMonth > 11) { self._viewMonth = 0; self._viewYear++; }
+      if (self._viewMonth > 11) {
+        self._viewMonth = 0;
+        self._viewYear++;
+      }
       self._renderCal();
     });
 
@@ -1528,7 +1759,9 @@
           btn.classList.add("fontWeight-700", "color-var(--ec-accent,_#1a73e8)");
         }
 
-        if (self._value === iso) btn.classList.add("background-var(--ec-accent,_#1a73e8)", "color-#fff");
+        if (self._value === iso) {
+          btn.classList.add("background-var(--ec-accent,_#1a73e8)", "color-#fff");
+        }
 
         btn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -1537,7 +1770,9 @@
           self._triggerText.style.color = "inherit";
           self._renderCal();
           self._closeCal();
-          if (self._changeHandler) self._changeHandler(iso);
+          if (self._changeHandler) {
+            self._changeHandler(iso);
+          }
         });
 
         grid.appendChild(btn);
@@ -1546,7 +1781,10 @@
     this._cal.appendChild(grid);
   };
 
-  ECDatePicker.prototype.getValue = function () { return this._value; };
+  ECDatePicker.prototype.getValue = function () {
+    return this._value;
+  };
+
   ECDatePicker.prototype.setValue = function (iso) {
     this._value = iso;
     this._triggerText.textContent = iso || "Select a date";
@@ -1554,9 +1792,11 @@
     this._renderCal();
     return this;
   };
-  ECDatePicker.prototype.onChange = function (h) { this._changeHandler = h; return this; };
 
-  /* ─── ECFileUpload ───────────────────────────────────────────────────── */
+  ECDatePicker.prototype.onChange = function (h) {
+    this._changeHandler = h;
+    return this;
+  };
 
   function ECFileUpload(options) {
     options = options || {};
@@ -1629,7 +1869,9 @@
       }
       self._files.push(file);
       self._renderFile(file);
-      if (self._changeHandler) self._changeHandler(self._files);
+      if (self._changeHandler) {
+        self._changeHandler(self._files);
+      }
     });
   };
 
@@ -1649,7 +1891,9 @@
       e.stopPropagation();
       self._files = self._files.filter(function (f) { return f !== file; });
       row.parentNode.removeChild(row);
-      if (self._changeHandler) self._changeHandler(self._files);
+      if (self._changeHandler) {
+        self._changeHandler(self._files);
+      }
     });
 
     row.appendChild(name);
@@ -1657,11 +1901,20 @@
     this._fileList.appendChild(row);
   };
 
-  ECFileUpload.prototype.getFiles = function () { return this._files.slice(); };
-  ECFileUpload.prototype.clear = function () { this._files = []; this._fileList.innerHTML = ""; return this; };
-  ECFileUpload.prototype.onChange = function (h) { this._changeHandler = h; return this; };
+  ECFileUpload.prototype.getFiles = function () {
+    return this._files.slice();
+  };
 
-  /* ─── ECRating ───────────────────────────────────────────────────────── */
+  ECFileUpload.prototype.clear = function () {
+    this._files = [];
+    this._fileList.innerHTML = "";
+    return this;
+  };
+
+  ECFileUpload.prototype.onChange = function (h) {
+    this._changeHandler = h;
+    return this;
+  };
 
   function ECRating(options) {
     options = options || {};
@@ -1689,8 +1942,12 @@
           star.addEventListener("click", function () {
             self._value = self._value === starVal ? 0 : starVal;
             self._highlightTo(self._value, false);
-            if (self._labelEl) self._labelEl.textContent = self._labelText();
-            if (self._changeHandler) self._changeHandler(self._value);
+            if (self._labelEl) {
+              self._labelEl.textContent = self._labelText();
+            }
+            if (self._changeHandler) {
+              self._changeHandler(self._value);
+            }
           });
         }
 
@@ -1710,35 +1967,48 @@
     applyBaseMixin(this);
   }
 
-  ECRating.prototype._labelText = function () { return this._value ? this._value + " / " + this._max : "Not rated"; };
+  ECRating.prototype._labelText = function () {
+    return this._value ? this._value + " / " + this._max : "Not rated";
+  };
+  
   ECRating.prototype._highlightTo = function (val, isHover) {
     this._stars.forEach(function (star) {
       var sv = Number(star.dataset.val);
       if (sv <= val) {
         star.classList.replace("color-#dee2e6", isHover ? "color-#fbbf24" : "color-#f59e0b");
-        if (isHover) star.classList.add("transform-scale(1.15)");
-        else star.classList.remove("transform-scale(1.15)");
+        if (isHover) {
+          star.classList.add("transform-scale(1.15)");
+        } else {
+          star.classList.remove("transform-scale(1.15)");
+        }
       } else {
         star.classList.remove("color-#fbbf24", "color-#f59e0b", "transform-scale(1.15)");
         star.classList.add("color-#dee2e6");
       }
     });
   };
-  ECRating.prototype.getValue = function () { return this._value; };
+
+  ECRating.prototype.getValue = function () {
+    return this._value;
+  };
+
   ECRating.prototype.setValue = function (val) {
     this._value = Math.min(this._max, Math.max(0, val));
     this._highlightTo(this._value, false);
-    if (this._labelEl) this._labelEl.textContent = this._labelText();
+    if (this._labelEl) {
+      this._labelEl.textContent = this._labelText();
+    }
     return this;
   };
-  ECRating.prototype.onChange = function (h) { this._changeHandler = h; return this; };
 
-  /* ─── ECBasicCard ────────────────────────────────────────────────────── */
+  ECRating.prototype.onChange = function (h) {
+    this._changeHandler = h;
+    return this;
+  };
 
   function ECBasicCard(content) {
     this.element = document.createElement("div");
     
-    // Leverage the new macro class from ECStyleSheet, plus generic padding
     this.element.className = BASE_CLS + " eccard padding-20px boxSizing-border-box";
 
     if (content) {
@@ -1767,8 +2037,6 @@
     return this;
   };
 
-  /* ─── ECMediaCard ─────────────────────────────────────────────────────────── */
-
   function ECMediaCard(options) {
     options = options || {};
     this.element = document.createElement("div");
@@ -1784,7 +2052,8 @@
         if (options.avatarSrc) {
           var img = document.createElement("img");
           img.className = "width-100% height-100% objectFit-cover";
-          img.src = options.avatarSrc; img.alt = options.author;
+          img.src = options.avatarSrc;
+          img.alt = options.author;
           avatar.appendChild(img);
         } else {
           avatar.textContent = (options.author || "?")[0].toUpperCase();
@@ -1819,7 +2088,9 @@
       var cardImg = document.createElement("img");
       cardImg.className = "width-100% objectFit-contain marginTop-14px display-block borderTop-1px_solid_var(--ec-border,_#dee2e6) borderBottom-1px_solid_var(--ec-border,_#dee2e6)";
       cardImg.src = options.imageSrc; cardImg.alt = options.imageAlt || "";
-      if (options.imageHeight) cardImg.style.height = options.imageHeight;
+      if (options.imageHeight) {
+        cardImg.style.height = options.imageHeight;
+      }
       imgWrap.appendChild(cardImg);
       this.element.appendChild(imgWrap);
     }
@@ -1832,8 +2103,11 @@
     this._body = document.createElement("div");
     this._body.className = "padding-12px_16px fontSize-14px color-var(--ec-text,_#212529) lineHeight-1.6 flex-1";
     if (options.content) {
-      if (typeof options.content === "string") this._body.innerHTML = options.content;
-      else this._body.appendChild(options.content);
+      if (typeof options.content === "string") {
+        this._body.innerHTML = options.content;
+      } else {
+        this._body.appendChild(options.content);
+      }
     }
     this.element.appendChild(this._body);
 
@@ -1841,7 +2115,9 @@
     this._footer.className = "display-flex alignItems-center gap-8px padding-10px_16px borderTop-1px_solid_var(--ec-border,_#dee2e6) flexWrap-wrap";
     if (options.actions && Array.isArray(options.actions)) {
       var self = this;
-      options.actions.forEach(function (act) { self.addAction(act.label, act.onClick, act.icon); });
+      options.actions.forEach(function (act) {
+        self.addAction(act.label, act.onClick, act.icon);
+      });
     }
     if (options.footer) {
       this.element.appendChild(this._footer);
@@ -1851,33 +2127,50 @@
   }
 
   ECMediaCard.prototype.setContent = function (content) {
-    if (typeof content === "string") this._body.innerHTML = content;
-    else { this._body.innerHTML = ""; this._body.appendChild(content); }
+    if (typeof content === "string") {
+      this._body.innerHTML = content;
+    } else {
+      this._body.innerHTML = "";
+      this._body.appendChild(content);
+    }
     return this;
   };
+
   ECMediaCard.prototype.addContent = function (content) {
-    if (typeof content === "string") { var s = document.createElement("span"); s.innerHTML = content; this._body.appendChild(s); }
-    else this._body.appendChild(content);
+    if (typeof content === "string") {
+      var s = document.createElement("span");
+      s.innerHTML = content;
+      this._body.appendChild(s);
+    } else {
+      this._body.appendChild(content);
+    }
     return this;
   };
+
   ECMediaCard.prototype.addAction = function (label, handler, icon) {
     var btn = document.createElement("button");
     btn.className = "background-none border-none fontSize-13px color-var(--ec-text-muted,_#6c757d) cursor-pointer padding-4px_8px borderRadius-6px display-flex alignItems-center gap-4px transition-background_0.15s,_color_0.15s hover:background-var(--ec-surface,_#f8f9fa) hover:color-var(--ec-text,_#212529)";
     btn.textContent = (icon ? icon + " " : "") + label;
-    if (handler) btn.addEventListener("click", handler);
+    if (handler) {
+      btn.addEventListener("click", handler);
+    }
     this._footer.appendChild(btn);
     return this;
   };
-  ECMediaCard.prototype.setWidth = function (w) { this.element.style.width = typeof w === "number" ? w + "px" : w; return this; };
 
-  /* ─── ECHero ─────────────────────────────────────────────────────────── */
+  ECMediaCard.prototype.setWidth = function (w) {
+    this.element.style.width = typeof w === "number" ? w + "px" : w;
+    return this;
+  };
 
   function ECHero(options) {
     options = options || {};
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " width-100% height-100vh padding-72px_32px textAlign-center boxSizing-border-box background-var(--ec-bg,_#fff) display-flex flexDirection-column justifyContent-center alignItems-center gap-16px position-relative overflow-hidden";
 
-    if (options.background) this.element.style.background = options.background;
+    if (options.background) {
+      this.element.style.background = options.background;
+    }
 
     if (options.eyebrow) {
       var eyebrow = document.createElement("p");
@@ -1903,8 +2196,12 @@
       actionsRow.className = "display-flex gap-12px flexWrap-wrap justifyContent-center marginTop-8px";
       options.actions.forEach(function (act) {
         var btn = new ECButton(act.label, { variant: act.variant || "filled" });
-        if (act.theme) btn.setTheme(act.theme);
-        if (act.onClick) btn.onClick(act.onClick);
+        if (act.theme) {
+          btn.setTheme(act.theme);
+        }
+        if (act.onClick) {
+          btn.onClick(act.onClick);
+        }
         actionsRow.appendChild(btn.element);
       });
       this.element.appendChild(actionsRow);
@@ -1914,17 +2211,27 @@
       var img = document.createElement("img");
       img.className = "maxWidth-100% borderRadius-10px marginTop-8px display-block";
       img.src = options.imageSrc; img.alt = options.imageAlt || "";
-      if (options.imageMaxWidth) img.style.maxWidth = options.imageMaxWidth;
+      if (options.imageMaxWidth) {
+        img.style.maxWidth = options.imageMaxWidth;
+      }
       this.element.appendChild(img);
     }
 
     applyBaseMixin(this);
   }
 
-  ECHero.prototype.setTitle = function (title) { this._titleEl.textContent = title; return this; };
-  ECHero.prototype.setSubtitle = function (text) { if (this._subtitleEl) this._subtitleEl.textContent = text; return this; };
+  ECHero.prototype.setTitle = function (title) {
+    this._titleEl.textContent = title;
+    return this;
+  };
 
-  /* ─── ECDrawer ─────────────────────────────────────────────────────── */
+  ECHero.prototype.setSubtitle = function (text) {
+    if (this._subtitleEl) {
+      this._subtitleEl.textContent = text;
+    }
+    return this;
+  };
+
   function ECDrawer(title) {
     var self = this;
     this.element = document.createElement("div");
@@ -1951,7 +2258,6 @@
     this.element.appendChild(this._header); 
     this.element.appendChild(this._body);
 
-    // Provide a simple overlay to block background interaction
     this._overlay = document.createElement("div");
     this._overlay.className = "display-none position-fixed inset-0 background-rgba(0,0,0,0.5) zIndex-800 opacity-0 transition-opacity_0.25s_ease";
     this._overlay.addEventListener("click", function () { self.close(); });
@@ -1962,33 +2268,47 @@
 
   ECDrawer.prototype.open = function () {
     var el = this.element, ov = this._overlay;
-    el.classList.remove("display-none"); el.classList.add("display-block");
-    ov.classList.remove("display-none"); ov.classList.add("display-block");
+    el.classList.remove("display-none");
+    el.classList.add("display-block");
+    ov.classList.remove("display-none");
+    ov.classList.add("display-block");
     void el.offsetHeight;
-    el.classList.remove("transform-translateY(100%)"); el.classList.add("transform-translateY(0)");
-    ov.classList.remove("opacity-0"); ov.classList.add("opacity-1");
+    el.classList.remove("transform-translateY(100%)");
+    el.classList.add("transform-translateY(0)");
+    ov.classList.remove("opacity-0");
+    ov.classList.add("opacity-1");
     return this;
   };
 
   ECDrawer.prototype.close = function () {
     var el = this.element, ov = this._overlay;
-    el.classList.remove("transform-translateY(0)"); el.classList.add("transform-translateY(100%)");
-    ov.classList.remove("opacity-1"); ov.classList.add("opacity-0");
+    el.classList.remove("transform-translateY(0)");
+    el.classList.add("transform-translateY(100%)");
+    ov.classList.remove("opacity-1");
+    ov.classList.add("opacity-0");
     el.addEventListener("transitionend", function handler(e) {
-      if (e.target !== el) return;
+      if (e.target !== el) {
+        return;
+      }
       el.classList.remove("display-block"); el.classList.add("display-none");
       ov.classList.remove("display-block"); ov.classList.add("display-none");
-    }, { once: true });
+    },
+    {
+      once: true
+    });
     return this;
   };
 
   ECDrawer.prototype.setContent = function (content) {
-    if (typeof content === "string") this._body.innerHTML = content; 
-    else { this._body.innerHTML = ""; this._body.appendChild(content); } 
+    if (typeof content === "string") {
+      this._body.innerHTML = content; 
+    } else {
+      this._body.innerHTML = "";
+      this._body.appendChild(content);
+    } 
     return this;
   };
 
-  /* ─── ECGrid ───────────────────────────────────────────────────────── */
   function ECGrid(options) {
     options = options || {};
     this.element = document.createElement("div");
@@ -2020,7 +2340,6 @@
     return this;
   };
 
-  /* ─── ECBanner ─────────────────────────────────────────────────────── */
   function ECBanner(text, options) {
     options = options || {};
     var self = this;
@@ -2038,10 +2357,7 @@
     this._content.textContent = text || "";
     
     if (options.loop) {
-      // Force wrapper to stay on one line
       this._contentWrap.classList.add("whiteSpace-nowrap");
-      // paddingLeft-100% pushes the text just outside the right edge of the wrapper.
-      // The animation then shifts the element by -100% of its OWN total width, bringing it across and off the left edge.
       this._content.className = "display-inline-block paddingLeft-100% animation-ec-marquee_15s_linear_infinite fontSize-14px fontWeight-500 /*hover:animationPlayState-paused*/ cursor-default";
     } else {
       this._content.className = "textAlign-center width-100% fontSize-14px fontWeight-500";
@@ -2065,11 +2381,12 @@
     var el = this.element;
     el.classList.add("opacity-0", "maxHeight-0", "padding-0");
     setTimeout(function () {
-      if (el.parentNode) el.parentNode.removeChild(el);
+      if (el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
     }, 300);
   };
 
-  /* ─── ECCountdown ──────────────────────────────────────────────────── */
   function ECCountdown(targetDate, options) {
     options = options || {};
     var self = this;
@@ -2127,19 +2444,19 @@
     clearInterval(this._interval);
   };
 
-  /* ─── ECCarousel ───────────────────────────────────────────────────── */
   function ECCarousel(items) {
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " position-relative width-100% overflow-hidden";
 
     this._track = document.createElement("div");
     this._track.className = "display-flex overflowX-auto scrollSnapType-x_mandatory scrollBehavior-smooth gap-16px paddingBottom-8px width-100%";
-    // Hide scrollbar inline hack where possible
     this._track.style.scrollbarWidth = "none";
 
     var self = this;
     if (items && Array.isArray(items)) {
-      items.forEach(function (item) { self.addItem(item); });
+      items.forEach(function (item) {
+        self.addItem(item);
+      });
     }
 
     this._btnPrev = this._createBtn("‹", -1);
@@ -2179,7 +2496,6 @@
     return this;
   };
 
-  /* ─── ECLightbox ───────────────────────────────────────────────────── */
   function ECLightbox() {
     var self = this;
     this.element = document.createElement("div");
@@ -2222,13 +2538,14 @@
     el.classList.remove("opacity-1"); el.classList.add("opacity-0");
     img.classList.remove("transform-scale(1)"); img.classList.add("transform-scale(0.9)");
     el.addEventListener("transitionend", function handler(e) {
-      if (e.target !== el) return;
+      if (e.target !== el) {
+        return;
+      }
       el.classList.remove("display-flex"); el.classList.add("display-none");
       img.src = "";
     }, { once: true });
   };
 
-  /* ─── ECAvatar ─────────────────────────────────────────────────────── */
   function ECAvatar(options) {
     options = options || {};
     this.element = document.createElement("div");
@@ -2256,23 +2573,34 @@
     applyBaseMixin(this);
   }
 
-  /* ─── ECIndicator ──────────────────────────────────────────────────── */
   function ECIndicator(targetEl, options) {
     options = options || {};
     this.element = document.createElement("div");
     this.element.className = BASE_CLS + " position-relative display-inline-block";
 
-    if (targetEl && targetEl.element) targetEl = targetEl.element;
-    if (targetEl instanceof HTMLElement) this.element.appendChild(targetEl);
+    if (targetEl && targetEl.element) {
+      targetEl = targetEl.element;
+    }
+    if (targetEl instanceof HTMLElement) {
+      this.element.appendChild(targetEl);
+    }
 
     this._dot = document.createElement("span");
     this._dot.className = "position-absolute top-0 right-0 width-12px height-12px borderRadius-50% border-2px_solid_var(--ec-bg,_#fff) zIndex-10 transform-translate(30%,_-30%)";
     
-    var color = "#1a73e8"; // default primary
-    if (options.type === "online" || options.type === "success") color = "#2e7d32";
-    if (options.type === "warning") color = "#e65100";
-    if (options.type === "error" || options.type === "notification") color = "#c62828";
-    if (options.color) color = options.color;
+    var color = "#1a73e8";
+    if (options.type === "online" || options.type === "success") {
+      color = "#2e7d32";
+    }
+    if (options.type === "warning") {
+      color = "#e65100";
+    }
+    if (options.type === "error" || options.type === "notification") {
+      color = "#c62828";
+    }
+    if (options.color) {
+      color = options.color;
+    }
 
     this._dot.style.backgroundColor = color;
     this.element.appendChild(this._dot);
@@ -2280,7 +2608,6 @@
     applyBaseMixin(this);
   }
 
-  /* ─── ECTreeView ───────────────────────────────────────────────────── */
   function ECTreeView(data) {
     this.element = document.createElement("ul");
     this.element.className = BASE_CLS + " listStyle-none padding-0 margin-0";
@@ -2319,7 +2646,9 @@
         
         var isExpanded = !!node.expanded;
         childUl.style.display = isExpanded ? "block" : "none";
-        if (isExpanded) icon.classList.add("transform-rotate(90deg)");
+        if (isExpanded) {
+          icon.classList.add("transform-rotate(90deg)");
+        }
 
         row.addEventListener("click", function(e) {
           e.stopPropagation();
@@ -2340,8 +2669,6 @@
     });
   };
 
-  /* ─── Boot ───────────────────────────────────────────────────────────── */
-
   function boot() {
     injectKeyframes();
   }
@@ -2351,8 +2678,6 @@
   } else {
     boot();
   }
-
-  /* ─── Exports ────────────────────────────────────────────────────────── */
 
   window.ECTheme = ECTheme;
   window.ECButton = ECButton;
